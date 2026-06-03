@@ -16,7 +16,7 @@ export type ExpenseInput = {
   description: string;
   amount: number;
   paidBy: number; // member id
-  participantIds: number[]; // members sharing this expense
+  participants: { memberId: number; units: number }[]; // members sharing + their unit count
 };
 
 export type MemberBalance = {
@@ -72,15 +72,17 @@ export function computeMemberBalances(
   }
 
   for (const e of expenses) {
-    const participants = e.participantIds.filter((id) => paid.has(id));
-    if (participants.length === 0) continue; // nobody to split among → skip
-    const perHead = e.amount / participants.length;
+    const participants = e.participants.filter((p) => paid.has(p.memberId));
+    if (participants.length === 0) continue;
+    const totalUnits = participants.reduce((sum, p) => sum + p.units, 0);
+    if (totalUnits === 0) continue;
+    const perUnit = e.amount / totalUnits;
 
     if (paid.has(e.paidBy)) {
       paid.set(e.paidBy, (paid.get(e.paidBy) ?? 0) + e.amount);
     }
-    for (const pid of participants) {
-      share.set(pid, (share.get(pid) ?? 0) + perHead);
+    for (const p of participants) {
+      share.set(p.memberId, (share.get(p.memberId) ?? 0) + perUnit * p.units);
     }
   }
 
@@ -171,8 +173,9 @@ export function buildSummary(
 ): Summary {
   const memberBalances = computeMemberBalances(members, expenses);
   const familyBalances = computeFamilyBalances(families, memberBalances);
+  // Settle at person level so transfers show real names, not family names
   const settlement = settle(
-    familyBalances.map((f) => ({ id: f.id, name: f.name, net: f.net }))
+    memberBalances.map((m) => ({ id: m.id, name: m.name, net: m.net }))
   );
 
   return {

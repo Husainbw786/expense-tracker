@@ -1,11 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  getTrip,
-  getFamilies,
-  getTripMembers,
-  getExpenseById,
-} from "@/lib/data";
+import { getTrip, getFamilies, getTripMembers, getExpenseById } from "@/lib/data";
 import { updateExpense } from "@/app/actions";
 import ExpenseForm from "@/components/ExpenseForm";
 
@@ -29,19 +24,20 @@ export default async function EditExpensePage({
   if (!trip || !expense || expense.tripId !== tripId) notFound();
 
   return (
-    <main className="pt-6">
-      <div className="px-4">
-        <Link href={`/trips/${tripId}/expenses`} className="text-sm text-indigo-600">
+    <main className="pb-28">
+      <div className="bg-white px-4 pt-6 pb-4 border-b border-gray-100">
+        <Link href={`/trips/${tripId}/expenses`} className="text-sm text-indigo-600 font-medium">
           ← Expenses
         </Link>
-        <h1 className="mt-1 text-2xl font-bold">Edit expense</h1>
+        <h1 className="mt-1 text-xl font-bold text-gray-900">Edit Expense</h1>
       </div>
+
       <ExpenseForm
         tripId={tripId}
         members={members}
         families={families}
         action={updateExpense}
-        submitLabel="Save changes"
+        submitLabel="Save Changes"
         initial={{
           id: expense.id,
           description: expense.description,
@@ -49,7 +45,7 @@ export default async function EditExpensePage({
           category: expense.category,
           spentOn: expense.spentOn,
           paidBy: expense.paidBy,
-          participantIds: expense.participantIds,
+          participants: expense.participants,
         }}
       />
     </main>

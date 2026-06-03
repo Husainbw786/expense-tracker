@@ -149,11 +149,16 @@ export async function removeFamilyFromTrip(formData: FormData) {
 }
 
 // ---------- Expenses (scoped to a trip) ----------
-function parseParticipants(formData: FormData): number[] {
+function parseParticipants(formData: FormData): { memberId: number; units: number }[] {
+  // Form sends pairs: participants=memberId and participant_units_<memberId>=units
   return formData
     .getAll("participants")
     .map((v) => Number(v))
-    .filter((n) => Number.isFinite(n) && n > 0);
+    .filter((n) => Number.isFinite(n) && n > 0)
+    .map((memberId) => ({
+      memberId,
+      units: Math.max(1, Number(formData.get(`participant_units_${memberId}`)) || 1),
+    }));
 }
 
 export async function addExpense(formData: FormData) {
@@ -164,6 +169,7 @@ export async function addExpense(formData: FormData) {
   const category = String(formData.get("category") ?? "Other").trim() || "Other";
   const spentOn = String(formData.get("spentOn") ?? "").trim() || null;
   const participantIds = parseParticipants(formData);
+
 
   if (
     !tripId ||
@@ -191,7 +197,7 @@ export async function addExpense(formData: FormData) {
 
   await db
     .insert(expenseParticipants)
-    .values(participantIds.map((memberId) => ({ expenseId: inserted.id, memberId })));
+    .values(participantIds.map((p) => ({ expenseId: inserted.id, memberId: p.memberId, units: p.units })));
 
   revalidateAll();
   redirect(`/trips/${tripId}/expenses`);
@@ -206,6 +212,7 @@ export async function updateExpense(formData: FormData) {
   const category = String(formData.get("category") ?? "Other").trim() || "Other";
   const spentOn = String(formData.get("spentOn") ?? "").trim() || null;
   const participantIds = parseParticipants(formData);
+
 
   if (
     !id ||
@@ -227,7 +234,7 @@ export async function updateExpense(formData: FormData) {
   await db.delete(expenseParticipants).where(eq(expenseParticipants.expenseId, id));
   await db
     .insert(expenseParticipants)
-    .values(participantIds.map((memberId) => ({ expenseId: id, memberId })));
+    .values(participantIds.map((p) => ({ expenseId: id, memberId: p.memberId, units: p.units })));
 
   revalidateAll();
   redirect(`/trips/${tripId}/expenses`);

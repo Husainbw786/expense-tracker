@@ -58,6 +58,8 @@ export const expenseParticipants = sqliteTable("expense_participants", {
   memberId: integer("member_id")
     .notNull()
     .references(() => members.id, { onDelete: "cascade" }),
+  // How many "units" this person takes (default 1). Use 2 for double tickets, etc.
+  units: integer("units").notNull().default(1),
 });
 
 export const familiesRelations = relations(families, ({ many }) => ({

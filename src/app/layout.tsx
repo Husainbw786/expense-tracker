@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-full">
-        <div className="mx-auto w-full max-w-md pb-24">{children}</div>
+        <div className="mx-auto w-full max-w-md">{children}</div>
         <BottomNav />
       </body>
     </html>

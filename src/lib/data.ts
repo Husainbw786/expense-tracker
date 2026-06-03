@@ -103,12 +103,12 @@ async function participantsByExpense(tripId: number) {
     .from(expenses)
     .where(eq(expenses.tripId, tripId));
   const parts = await db.select().from(expenseParticipants);
-  const map = new Map<number, number[]>();
+  const map = new Map<number, { memberId: number; units: number }[]>();
   const expenseIds = new Set(exps.map((e) => e.id));
   for (const p of parts) {
     if (!expenseIds.has(p.expenseId)) continue;
     const arr = map.get(p.expenseId) ?? [];
-    arr.push(p.memberId);
+    arr.push({ memberId: p.memberId, units: p.units ?? 1 });
     map.set(p.expenseId, arr);
   }
   return { exps, map };
@@ -122,8 +122,9 @@ export type ExpenseWithDetails = {
   spentOn: string | null;
   payerName: string;
   payerId: number;
-  participantIds: number[];
+  participants: { memberId: number; units: number }[];
   participantCount: number;
+  totalUnits: number;
 };
 
 export async function getTripExpensesWithDetails(
@@ -135,7 +136,8 @@ export async function getTripExpensesWithDetails(
 
   return exps
     .map((e) => {
-      const participantIds = map.get(e.id) ?? [];
+      const participants = map.get(e.id) ?? [];
+      const totalUnits = participants.reduce((s, p) => s + p.units, 0);
       return {
         id: e.id,
         description: e.description,
@@ -144,11 +146,12 @@ export async function getTripExpensesWithDetails(
         spentOn: e.spentOn,
         payerName: memberName.get(e.paidBy) ?? "—",
         payerId: e.paidBy,
-        participantIds,
-        participantCount: participantIds.length,
+        participants,
+        participantCount: participants.length,
+        totalUnits,
       };
     })
-    .sort((a, b) => b.id - a.id); // newest first
+    .sort((a, b) => b.id - a.id);
 }
 
 export async function getTripSummary(tripId: number): Promise<Summary> {
@@ -164,7 +167,7 @@ export async function getTripSummary(tripId: number): Promise<Summary> {
     description: e.description,
     amount: e.amount,
     paidBy: e.paidBy,
-    participantIds: map.get(e.id) ?? [],
+    participants: map.get(e.id) ?? [],
   }));
 
   return buildSummary(fs, tripMembers, expenseInputs);
@@ -177,5 +180,8 @@ export async function getExpenseById(id: number) {
     .select()
     .from(expenseParticipants)
     .where(eq(expenseParticipants.expenseId, id));
-  return { ...e, participantIds: parts.map((p) => p.memberId) };
+  return {
+    ...e,
+    participants: parts.map((p) => ({ memberId: p.memberId, units: p.units ?? 1 })),
+  };
 }
