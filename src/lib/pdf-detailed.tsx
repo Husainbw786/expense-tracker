@@ -5,17 +5,20 @@ import {
 import type { Summary } from "./calc";
 import type { ExpenseWithDetails } from "./data";
 
+// ─── Palette ────────────────────────────────────────────────────────────────
 const C = {
   indigo:      "#4f46e5",
-  indigoLight: "#eef2ff",
   indigoDark:  "#3730a3",
+  indigoLight: "#eef2ff",
   emerald:     "#059669",
-  emeraldBg:   "#ecfdf5",
+  emeraldBg:   "#d1fae5",
   rose:        "#e11d48",
-  roseBg:      "#fff1f2",
+  roseBg:      "#ffe4e6",
   gray900:     "#111827",
   gray700:     "#374151",
+  gray600:     "#4b5563",
   gray500:     "#6b7280",
+  gray400:     "#9ca3af",
   gray300:     "#d1d5db",
   gray200:     "#e5e7eb",
   gray100:     "#f3f4f6",
@@ -27,95 +30,107 @@ const FAMILY_COLORS = [
   { bg: "#ede9fe", text: "#5b21b6" },
   { bg: "#d1fae5", text: "#065f46" },
   { bg: "#e0f2fe", text: "#0c4a6e" },
-  { bg: "#fef3c7", text: "#92400e" },
-  { bg: "#ffe4e6", text: "#9f1239" },
+  { bg: "#fef3c7", text: "#78350f" },
+  { bg: "#fce7f3", text: "#9d174d" },
+  { bg: "#ccfbf1", text: "#134e4a" },
+  { bg: "#f3e8ff", text: "#6b21a8" },
+  { bg: "#ffedd5", text: "#7c2d12" },
 ];
 
-const CAT_COLORS: Record<string, string> = {
-  Travel: "#3b82f6", Train: "#6366f1", Rickshaw: "#eab308",
-  Hotel: "#f97316", Food: "#22c55e", Tickets: "#a855f7",
+const CAT_COLOR: Record<string, string> = {
+  Hotel: "#f97316", Travel: "#6366f1", Train: "#6366f1",
+  Rickshaw: "#eab308", Food: "#22c55e", Tickets: "#a855f7",
   Shopping: "#ec4899", Other: "#9ca3af",
 };
 
 Font.registerHyphenationCallback((word) => [word]);
 
-function fmt(n: number) {
-  return "₹" + n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-function fmtShort(n: number) {
-  return "₹" + Math.round(n).toLocaleString("en-IN");
+function rupee(n: number) {
+  return "₹" + Math.abs(n).toLocaleString("en-IN", {
+    minimumFractionDigits: 0, maximumFractionDigits: 0,
+  });
 }
 
+function initials(name: string) {
+  return name.split(" ").map(w => w[0] ?? "").join("").toUpperCase().slice(0, 2);
+}
+
+// ─── Styles ─────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
-  page: { backgroundColor: C.white, fontFamily: "Helvetica", fontSize: 8.5, color: C.gray700, paddingBottom: 40 },
+  page:        { backgroundColor: C.white, fontFamily: "Helvetica", fontSize: 8.5, color: C.gray700, paddingBottom: 44 },
 
   // Header
-  headerBar:   { backgroundColor: C.indigo, padding: "18 28 14" },
-  headerRow:   { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
-  tripName:    { fontSize: 20, fontFamily: "Helvetica-Bold", color: C.white, letterSpacing: 0.3 },
-  billType:    { fontSize: 8, color: "#a5b4fc", marginTop: 1, letterSpacing: 0.8, textTransform: "uppercase" },
-  headerSub:   { fontSize: 8.5, color: "#a5b4fc", marginTop: 3 },
-  totalBox:    { alignItems: "flex-end" },
-  totalLabel:  { fontSize: 7.5, color: "#a5b4fc", textTransform: "uppercase", letterSpacing: 0.8 },
-  totalAmt:    { fontSize: 22, fontFamily: "Helvetica-Bold", color: C.white, marginTop: 2 },
-  statsRow:    { flexDirection: "row", marginTop: 12, gap: 0 },
-  statBox:     { flex: 1, backgroundColor: C.indigoDark, paddingVertical: 7, paddingHorizontal: 10, borderRight: `1 solid #4338ca` },
-  statNum:     { fontSize: 12, fontFamily: "Helvetica-Bold", color: C.white },
-  statLbl:     { fontSize: 7, color: "#a5b4fc", marginTop: 2, textTransform: "uppercase", letterSpacing: 0.5 },
+  headerBand:  { backgroundColor: C.indigo, padding: "22 32 0" },
+  hRow:        { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+  hLabel:      { fontSize: 8, color: "#a5b4fc", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 },
+  hTitle:      { fontSize: 22, fontFamily: "Helvetica-Bold", color: C.white, letterSpacing: 0.3 },
+  hSub:        { fontSize: 9, color: "#a5b4fc", marginTop: 5 },
+  hTotalLabel: { fontSize: 8, color: "#a5b4fc", letterSpacing: 1, textTransform: "uppercase", textAlign: "right" },
+  hTotalAmt:   { fontSize: 24, fontFamily: "Helvetica-Bold", color: C.white, textAlign: "right", marginTop: 3 },
+  statsRow:    { flexDirection: "row", marginTop: 16 },
+  statBox:     { flex: 1, backgroundColor: C.indigoDark, paddingVertical: 8, paddingHorizontal: 12, borderRight: `1 solid #4338ca` },
+  statNum:     { fontSize: 13, fontFamily: "Helvetica-Bold", color: C.white },
+  statLbl:     { fontSize: 7, color: "#a5b4fc", marginTop: 2, textTransform: "uppercase", letterSpacing: 0.8 },
 
   // Body
-  body:        { padding: "14 28" },
-  section:     { marginBottom: 16 },
-  sectionHdr:  { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: C.indigo, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8, borderBottom: `1.5 solid ${C.indigo}`, paddingBottom: 3 },
+  body:        { padding: "18 32" },
+  secHdr:      { fontSize: 8, fontFamily: "Helvetica-Bold", color: C.indigo, textTransform: "uppercase",
+                  letterSpacing: 2, borderBottom: `2 solid ${C.indigo}`, paddingBottom: 4, marginBottom: 10 },
 
   // Table
-  table:       { borderRadius: 5, overflow: "hidden", border: `1 solid ${C.gray200}` },
+  table:       { border: `1 solid ${C.gray200}`, borderRadius: 4, overflow: "hidden" },
   tHead:       { flexDirection: "row", backgroundColor: C.indigo },
-  tHeadCell:   { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: C.white, paddingVertical: 6, paddingHorizontal: 7, textTransform: "uppercase", letterSpacing: 0.5 },
-  tRow:        { flexDirection: "row", borderTop: `1 solid ${C.gray200}` },
+  tHCell:      { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: C.white,
+                  paddingVertical: 6, paddingHorizontal: 7, textTransform: "uppercase", letterSpacing: 0.5 },
+  tRow:        { flexDirection: "row", borderTop: `1 solid ${C.gray200}`, backgroundColor: C.white },
   tRowAlt:     { flexDirection: "row", borderTop: `1 solid ${C.gray200}`, backgroundColor: C.gray50 },
   tCell:       { fontSize: 8.5, paddingVertical: 5.5, paddingHorizontal: 7, color: C.gray700 },
-  tCellBold:   { fontSize: 8.5, paddingVertical: 5.5, paddingHorizontal: 7, color: C.gray900, fontFamily: "Helvetica-Bold" },
+  tCellBold:   { fontSize: 8.5, fontFamily: "Helvetica-Bold", paddingVertical: 5.5, paddingHorizontal: 7, color: C.gray900 },
   tFoot:       { flexDirection: "row", backgroundColor: C.gray900 },
-  tFootCell:   { fontSize: 8.5, fontFamily: "Helvetica-Bold", color: C.white, paddingVertical: 6, paddingHorizontal: 7 },
+  tFootCell:   { fontSize: 8.5, fontFamily: "Helvetica-Bold", color: C.white, paddingVertical: 7, paddingHorizontal: 7 },
+  catDot:      { width: 6, height: 6, borderRadius: 3, marginTop: 2, marginRight: 5 },
 
-  // Category dot
-  catDot:      { width: 6, height: 6, borderRadius: 3, marginTop: 1.5, marginRight: 5 },
-
-  // Balance table
-  balGets:     { color: C.emerald, fontFamily: "Helvetica-Bold" },
-  balOwes:     { color: C.rose, fontFamily: "Helvetica-Bold" },
-  balEven:     { color: C.gray500 },
+  // Family card
+  famCard:     { marginBottom: 10, borderRadius: 5, overflow: "hidden", border: `1 solid ${C.gray200}` },
+  famHeader:   { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: "9 12" },
+  famAvatar:   { width: 32, height: 32, borderRadius: 4, alignItems: "center", justifyContent: "center", marginRight: 9 },
+  famName:     { fontSize: 11, fontFamily: "Helvetica-Bold" },
+  famMeta:     { fontSize: 7.5, marginTop: 2 },
+  netBadge:    { borderRadius: 99, paddingVertical: 4, paddingHorizontal: 10, fontSize: 9, fontFamily: "Helvetica-Bold" },
+  memSubHdr:   { flexDirection: "row", borderTop: `1 solid ${C.gray200}`, backgroundColor: C.gray100, paddingVertical: 4 },
+  memSubCell:  { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: C.gray500, paddingHorizontal: 10,
+                  textTransform: "uppercase", letterSpacing: 0.5 },
 
   // Settlement
-  settlCard:   { backgroundColor: C.gray50, borderRadius: 5, border: `1 solid ${C.gray200}`, padding: "8 12", marginBottom: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  fromBadge:   { backgroundColor: C.roseBg, borderRadius: 99, paddingVertical: 3, paddingHorizontal: 9, fontSize: 8.5, color: C.rose, fontFamily: "Helvetica-Bold" },
-  toBadge:     { backgroundColor: C.emeraldBg, borderRadius: 99, paddingVertical: 3, paddingHorizontal: 9, fontSize: 8.5, color: C.emerald, fontFamily: "Helvetica-Bold" },
-  arrow:       { fontSize: 11, color: C.gray300, marginHorizontal: 6 },
-  transferAmt: { fontSize: 11, fontFamily: "Helvetica-Bold", color: C.gray900 },
-
-  // Family summary card
-  famCard:     { marginBottom: 7, borderRadius: 5, overflow: "hidden", border: `1 solid ${C.gray200}` },
-  famHeader:   { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: "7 10" },
-  famName:     { fontSize: 10, fontFamily: "Helvetica-Bold" },
-  famMeta:     { fontSize: 7.5, marginTop: 1.5 },
-  netBadge:    { borderRadius: 99, paddingVertical: 3, paddingHorizontal: 9, fontSize: 8.5, fontFamily: "Helvetica-Bold" },
+  settlInfo:   { backgroundColor: "#f0fdf4", border: `1 solid #bbf7d0`, borderRadius: 4, padding: "7 11", marginBottom: 10 },
+  settlInfoTxt:{ fontSize: 8.5, color: "#065f46" },
+  settlGroup:  { marginBottom: 12 },
+  settlLabel:  { flexDirection: "row", alignItems: "center", marginBottom: 7 },
+  settlLine:   { flex: 1, height: 1, backgroundColor: C.gray200 },
+  settlBadge:  { backgroundColor: C.emeraldBg, borderRadius: 99, paddingVertical: 3, paddingHorizontal: 10,
+                  fontSize: 8, fontFamily: "Helvetica-Bold", color: C.emerald, marginHorizontal: 8 },
+  settlGrid:   { flexDirection: "row", flexWrap: "wrap", gap: 5 },
+  settlCard:   { width: "31.5%", backgroundColor: C.white, border: `1 solid ${C.gray200}`, borderRadius: 5,
+                  padding: "7 9", flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  settlFrom:   { fontSize: 8.5, fontFamily: "Helvetica-Bold", color: C.gray900 },
+  settlFam:    { fontSize: 7.5, color: C.gray400, marginTop: 1 },
+  settlAmt:    { backgroundColor: C.roseBg, borderRadius: 5, paddingVertical: 3, paddingHorizontal: 6,
+                  fontSize: 9, fontFamily: "Helvetica-Bold", color: C.rose },
 
   // Footer
-  footer:      { position: "absolute", bottom: 14, left: 28, right: 28, flexDirection: "row", justifyContent: "space-between", borderTop: `1 solid ${C.gray300}`, paddingTop: 5 },
-  footerText:  { fontSize: 7, color: C.gray500 },
-  pageNum:     { fontSize: 7, color: C.gray500 },
+  footer:      { position: "absolute", bottom: 14, left: 32, right: 32,
+                  flexDirection: "row", justifyContent: "space-between",
+                  borderTop: `1 solid ${C.gray300}`, paddingTop: 5 },
+  footerTxt:   { fontSize: 7, color: C.gray400 },
+  pageNum:     { fontSize: 7, color: C.gray400 },
 });
 
-// Column widths for expense table (must sum ≈ page width - 56 padding = 539)
-const EXP_COL = { num: 22, desc: 140, cat: 52, date: 54, paidBy: 65, split: 42, amt: 62, perPerson: 62 };
+// Expense table column widths (A4 = 595 - 64 padding = 531 usable)
+const W = { num: 18, cat: 55, date: 50, paidBy: 65, ppl: 30, amt: 62, per: 55 };
 
+// ─── PDF Component ───────────────────────────────────────────────────────────
 export function DetailedBillPDF({
-  tripName,
-  tripDate,
-  summary,
-  expenses,
-  generatedOn,
+  tripName, tripDate, summary, expenses, generatedOn,
 }: {
   tripName: string;
   tripDate: string | null;
@@ -123,185 +138,243 @@ export function DetailedBillPDF({
   expenses: ExpenseWithDetails[];
   generatedOn: string;
 }) {
-  const sorted = [...expenses].sort((a, b) =>
-    (a.spentOn ?? "").localeCompare(b.spentOn ?? "") || a.id - b.id
+  const sorted = [...expenses].sort(
+    (a, b) => (a.spentOn ?? "").localeCompare(b.spentOn ?? "") || a.id - b.id
   );
+
+  // Build member→family map for settlement group labels
+  const memberFam = new Map<number, string>();
+  for (const f of summary.familyBalances) {
+    for (const m of f.members) memberFam.set(m.id, f.name);
+  }
+
+  // Group settlement by recipient
+  type STransfer = { fromName: string; fromFamily: string; amount: number };
+  type SGroup    = { toName: string; toFamily: string; transfers: STransfer[] };
+  const groupMap = new Map<number, SGroup>();
+  for (const t of summary.settlement) {
+    if (!groupMap.has(t.toId)) {
+      groupMap.set(t.toId, {
+        toName: t.toName,
+        toFamily: memberFam.get(t.toId) ?? "",
+        transfers: [],
+      });
+    }
+    groupMap.get(t.toId)!.transfers.push({
+      fromName: t.fromName,
+      fromFamily: memberFam.get(t.fromId) ?? "",
+      amount: t.amount,
+    });
+  }
+  const settlGroups = [...groupMap.values()];
 
   return (
     <Document title={`${tripName} — Detailed Bill`} author="Trip Splitter">
       <Page size="A4" style={s.page}>
 
-        {/* ── Header ── */}
-        <View style={s.headerBar}>
-          <View style={s.headerRow}>
+        {/* ══ HEADER ══ */}
+        <View style={s.headerBand}>
+          <View style={s.hRow}>
             <View>
-              <Text style={s.billType}>Detailed Expense Report</Text>
-              <Text style={s.tripName}>{tripName}</Text>
-              <Text style={s.headerSub}>
-                {tripDate ? `Trip date: ${tripDate}  ·  ` : ""}
-                Generated {generatedOn}
+              <Text style={s.hLabel}>Detailed Expense Report</Text>
+              <Text style={s.hTitle}>{tripName}</Text>
+              <Text style={s.hSub}>
+                {tripDate ? `Trip date: ${tripDate}  ·  ` : ""}Generated {generatedOn}
               </Text>
             </View>
-            <View style={s.totalBox}>
-              <Text style={s.totalLabel}>Total Spent</Text>
-              <Text style={s.totalAmt}>{fmt(summary.totalSpent)}</Text>
+            <View>
+              <Text style={s.hTotalLabel}>Total Spent</Text>
+              <Text style={s.hTotalAmt}>{rupee(summary.totalSpent)}</Text>
             </View>
           </View>
           <View style={s.statsRow}>
-            <View style={s.statBox}>
-              <Text style={s.statNum}>{summary.memberCount}</Text>
-              <Text style={s.statLbl}>People</Text>
-            </View>
-            <View style={s.statBox}>
-              <Text style={s.statNum}>{summary.familyBalances.length}</Text>
-              <Text style={s.statLbl}>Families</Text>
-            </View>
-            <View style={s.statBox}>
-              <Text style={s.statNum}>{summary.expenseCount}</Text>
-              <Text style={s.statLbl}>Expenses</Text>
-            </View>
-            <View style={[s.statBox, { borderRight: 0 }]}>
-              <Text style={s.statNum}>{fmt(summary.totalSpent / (summary.memberCount || 1))}</Text>
-              <Text style={s.statLbl}>Avg per person</Text>
-            </View>
+            {([
+              [String(summary.memberCount), "People"],
+              [String(summary.familyBalances.length), "Families"],
+              [String(summary.expenseCount), "Expenses"],
+              [rupee(summary.totalSpent / Math.max(summary.memberCount, 1)), "Avg / person"],
+            ] as [string, string][]).map(([n, l], i) => (
+              <View key={l} style={[s.statBox, i === 3 ? { borderRight: 0 } : {}]}>
+                <Text style={s.statNum}>{n}</Text>
+                <Text style={s.statLbl}>{l}</Text>
+              </View>
+            ))}
           </View>
         </View>
 
         <View style={s.body}>
 
-          {/* ── Section 1: Expense Log ── */}
-          <View style={s.section}>
-            <Text style={s.sectionHdr}>Expense Log</Text>
-            <View style={s.table}>
-              <View style={s.tHead}>
-                <Text style={[s.tHeadCell, { width: EXP_COL.num }]}>#</Text>
-                <Text style={[s.tHeadCell, { flex: 1 }]}>Description</Text>
-                <Text style={[s.tHeadCell, { width: EXP_COL.cat }]}>Category</Text>
-                <Text style={[s.tHeadCell, { width: EXP_COL.date }]}>Date</Text>
-                <Text style={[s.tHeadCell, { width: EXP_COL.paidBy }]}>Paid by</Text>
-                <Text style={[s.tHeadCell, { width: EXP_COL.split, textAlign: "center" }]}>Split</Text>
-                <Text style={[s.tHeadCell, { width: EXP_COL.amt, textAlign: "right" }]}>Amount</Text>
-                <Text style={[s.tHeadCell, { width: EXP_COL.perPerson, textAlign: "right" }]}>Per unit</Text>
-              </View>
-              {sorted.map((e, i) => {
-                const perUnit = e.totalUnits > 0 ? e.amount / e.totalUnits : 0;
-                const dotColor = CAT_COLORS[e.category] ?? CAT_COLORS.Other;
-                const RowStyle = i % 2 === 0 ? s.tRow : s.tRowAlt;
-                return (
-                  <View key={e.id} style={RowStyle} wrap={false}>
-                    <Text style={[s.tCell, { width: EXP_COL.num, color: C.gray500 }]}>{i + 1}</Text>
-                    <View style={[{ flex: 1, flexDirection: "row", paddingVertical: 5.5, paddingHorizontal: 7 }]}>
-                      <View style={[s.catDot, { backgroundColor: dotColor }]} />
-                      <Text style={{ fontSize: 8.5, color: C.gray900, fontFamily: "Helvetica-Bold", flex: 1 }}>{e.description}</Text>
-                    </View>
-                    <Text style={[s.tCell, { width: EXP_COL.cat, color: dotColor }]}>{e.category}</Text>
-                    <Text style={[s.tCell, { width: EXP_COL.date }]}>{e.spentOn ?? "—"}</Text>
-                    <Text style={[s.tCell, { width: EXP_COL.paidBy }]}>{e.payerName}</Text>
-                    <Text style={[s.tCell, { width: EXP_COL.split, textAlign: "center" }]}>
-                      {e.participantCount}p / {e.totalUnits}u
-                    </Text>
-                    <Text style={[s.tCellBold, { width: EXP_COL.amt, textAlign: "right" }]}>{fmt(e.amount)}</Text>
-                    <Text style={[s.tCell, { width: EXP_COL.perPerson, textAlign: "right" }]}>{fmtShort(perUnit)}</Text>
-                  </View>
-                );
-              })}
-              <View style={s.tFoot}>
-                <Text style={[s.tFootCell, { flex: 1 }]}>Total  ({sorted.length} expenses)</Text>
-                <Text style={[s.tFootCell, { width: EXP_COL.amt + EXP_COL.perPerson, textAlign: "right" }]}>{fmt(summary.totalSpent)}</Text>
-              </View>
+          {/* ══ SECTION 1: EXPENSE LOG ══ */}
+          <Text style={[s.secHdr, { marginTop: 4 }]}>1 · Expense Log</Text>
+          <View style={s.table}>
+            <View style={s.tHead}>
+              <Text style={[s.tHCell, { width: W.num }]}>#</Text>
+              <Text style={[s.tHCell, { flex: 1 }]}>Description</Text>
+              <Text style={[s.tHCell, { width: W.cat }]}>Category</Text>
+              <Text style={[s.tHCell, { width: W.date }]}>Date</Text>
+              <Text style={[s.tHCell, { width: W.paidBy }]}>Paid by</Text>
+              <Text style={[s.tHCell, { width: W.ppl, textAlign: "center" }]}>Ppl</Text>
+              <Text style={[s.tHCell, { width: W.amt, textAlign: "right" }]}>Amount</Text>
+              <Text style={[s.tHCell, { width: W.per, textAlign: "right" }]}>Per person</Text>
             </View>
-          </View>
 
-          {/* ── Section 2: Individual Balances ── */}
-          <View style={s.section} break>
-            <Text style={s.sectionHdr}>Individual Balances</Text>
-            <View style={s.table}>
-              <View style={s.tHead}>
-                <Text style={[s.tHeadCell, { flex: 1 }]}>Person</Text>
-                <Text style={[s.tHeadCell, { width: 90 }]}>Family</Text>
-                <Text style={[s.tHeadCell, { width: 75, textAlign: "right" }]}>Total Paid</Text>
-                <Text style={[s.tHeadCell, { width: 75, textAlign: "right" }]}>Fair Share</Text>
-                <Text style={[s.tHeadCell, { width: 90, textAlign: "right" }]}>Balance</Text>
-              </View>
-              {summary.familyBalances.map((f, fi) =>
-                f.members.map((m, mi) => {
-                  const settled = Math.abs(m.net) < 0.01;
-                  const RowStyle = fi % 2 === 0 ? s.tRow : s.tRowAlt;
-                  return (
-                    <View key={m.id} style={RowStyle} wrap={false}>
-                      <Text style={[s.tCellBold, { flex: 1 }]}>{m.name}</Text>
-                      <Text style={[s.tCell, { width: 90, color: C.gray500 }]}>{mi === 0 ? f.name : ""}</Text>
-                      <Text style={[s.tCell, { width: 75, textAlign: "right" }]}>{fmt(m.paid)}</Text>
-                      <Text style={[s.tCell, { width: 75, textAlign: "right" }]}>{fmt(m.share)}</Text>
-                      <Text style={[s.tCellBold, { width: 90, textAlign: "right" },
-                        settled ? s.balEven : m.net > 0 ? s.balGets : s.balOwes
-                      ]}>
-                        {settled ? "Even" : m.net > 0 ? `Gets ${fmt(m.net)}` : `Owes ${fmt(-m.net)}`}
-                      </Text>
-                    </View>
-                  );
-                })
-              )}
-            </View>
-          </View>
-
-          {/* ── Section 3: Family Summary ── */}
-          <View style={s.section}>
-            <Text style={s.sectionHdr}>Family Summary</Text>
-            {summary.familyBalances.map((f, fi) => {
-              const c = FAMILY_COLORS[fi % FAMILY_COLORS.length];
-              const settled = Math.abs(f.net) < 0.01;
+            {sorted.map((e, i) => {
+              const perPerson = e.participantCount > 0 ? e.amount / e.participantCount : 0;
+              const dot       = CAT_COLOR[e.category] ?? CAT_COLOR.Other;
+              const Row       = i % 2 === 0 ? s.tRow : s.tRowAlt;
               return (
-                <View key={f.id} style={s.famCard} wrap={false}>
-                  <View style={[s.famHeader, { backgroundColor: c.bg }]}>
-                    <View>
-                      <Text style={[s.famName, { color: c.text }]}>{f.name}</Text>
-                      <Text style={[s.famMeta, { color: c.text }]}>
-                        {f.memberCount} people  ·  Paid {fmt(f.paid)}  ·  Share {fmt(f.share)}
-                      </Text>
-                    </View>
-                    <Text style={[
-                      s.netBadge,
-                      settled ? { backgroundColor: C.gray100, color: C.gray500 }
-                        : f.net > 0 ? { backgroundColor: C.emeraldBg, color: C.emerald }
-                        : { backgroundColor: C.roseBg, color: C.rose },
-                    ]}>
-                      {settled ? "Even" : f.net > 0 ? `Gets ${fmt(f.net)}` : `Owes ${fmt(-f.net)}`}
+                <View key={e.id} style={Row} wrap={false}>
+                  <Text style={[s.tCell, { width: W.num, color: C.gray400 }]}>{i + 1}</Text>
+                  <View style={{ flex: 1, flexDirection: "row", paddingVertical: 5.5, paddingHorizontal: 7, alignItems: "flex-start" }}>
+                    <View style={[s.catDot, { backgroundColor: dot }]} />
+                    <Text style={{ fontSize: 8.5, fontFamily: "Helvetica-Bold", color: C.gray900, flex: 1 }}>
+                      {e.description}
                     </Text>
                   </View>
+                  <Text style={[s.tCell, { width: W.cat, color: dot, fontFamily: "Helvetica-Bold" }]}>{e.category}</Text>
+                  <Text style={[s.tCell, { width: W.date, color: C.gray500 }]}>{e.spentOn ?? "—"}</Text>
+                  <Text style={[s.tCell, { width: W.paidBy }]}>{e.payerName}</Text>
+                  <Text style={[s.tCell, { width: W.ppl, textAlign: "center", color: C.gray500 }]}>{e.participantCount}</Text>
+                  <Text style={[s.tCellBold, { width: W.amt, textAlign: "right" }]}>{rupee(e.amount)}</Text>
+                  <Text style={[s.tCell, { width: W.per, textAlign: "right", color: C.gray600 }]}>{rupee(perPerson)}</Text>
                 </View>
               );
             })}
+
+            <View style={s.tFoot}>
+              <Text style={[s.tFootCell, { flex: 1 }]}>Total  ({sorted.length} expense{sorted.length !== 1 ? "s" : ""})</Text>
+              <Text style={[s.tFootCell, { width: W.amt + W.per, textAlign: "right", fontSize: 11 }]}>{rupee(summary.totalSpent)}</Text>
+            </View>
           </View>
 
-          {/* ── Section 4: Settlement ── */}
-          <View style={s.section}>
-            <Text style={s.sectionHdr}>Settlement — Who Pays Whom</Text>
-            {summary.settlement.length === 0 ? (
-              <View style={[s.settlCard, { backgroundColor: C.emeraldBg, borderColor: C.emerald }]}>
-                <Text style={{ fontSize: 9, color: C.emerald, fontFamily: "Helvetica-Bold" }}>
-                  Everyone is settled up — no transfers needed!
-                </Text>
-              </View>
-            ) : (
-              summary.settlement.map((t, i) => (
-                <View key={i} style={s.settlCard} wrap={false}>
-                  <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
-                    <Text style={s.fromBadge}>{t.fromName}</Text>
-                    <Text style={s.arrow}> → </Text>
-                    <Text style={s.toBadge}>{t.toName}</Text>
+          {/* ══ SECTION 2: FAMILY & MEMBER BREAKDOWN ══ */}
+          <Text style={[s.secHdr, { marginTop: 20 }]} break>2 · Family &amp; Member Breakdown</Text>
+
+          {summary.familyBalances.map((fam, fi) => {
+            const c       = FAMILY_COLORS[fi % FAMILY_COLORS.length];
+            const settled = Math.abs(fam.net) < 0.5;
+            return (
+              <View key={fam.id} style={s.famCard} wrap={false}>
+
+                {/* Family header */}
+                <View style={[s.famHeader, { backgroundColor: c.bg }]}>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <View style={[s.famAvatar, { backgroundColor: c.text }]}>
+                      <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: c.bg }}>
+                        {initials(fam.name)}
+                      </Text>
+                    </View>
+                    <View>
+                      <Text style={[s.famName, { color: c.text }]}>{fam.name}</Text>
+                      <Text style={[s.famMeta, { color: c.text }]}>
+                        {fam.memberCount} {fam.memberCount === 1 ? "person" : "people"}
+                        {"  ·  "}Paid {rupee(fam.paid)}
+                        {"  ·  "}Share {rupee(fam.share)}
+                      </Text>
+                    </View>
                   </View>
-                  <Text style={s.transferAmt}>{fmt(t.amount)}</Text>
+                  <View>
+                    <Text style={{ fontSize: 7, color: c.text, textAlign: "right", marginBottom: 3,
+                      letterSpacing: 0.8, textTransform: "uppercase" }}>Family Total</Text>
+                    <Text style={[s.netBadge,
+                      settled
+                        ? { backgroundColor: C.gray100, color: C.gray500 }
+                        : fam.net > 0
+                          ? { backgroundColor: C.emeraldBg, color: C.emerald }
+                          : { backgroundColor: C.roseBg,    color: C.rose },
+                    ]}>
+                      {settled ? "Settled ✓" : fam.net > 0 ? `Gets  ${rupee(fam.net)}` : `Pays  ${rupee(-fam.net)}`}
+                    </Text>
+                  </View>
                 </View>
-              ))
-            )}
+
+                {/* Member column header */}
+                <View style={s.memSubHdr}>
+                  <Text style={[s.memSubCell, { flex: 1 }]}>Person</Text>
+                  <Text style={[s.memSubCell, { width: 75, textAlign: "right" }]}>Paid</Text>
+                  <Text style={[s.memSubCell, { width: 75, textAlign: "right" }]}>Share</Text>
+                  <Text style={[s.memSubCell, { width: 95, textAlign: "right" }]}>Balance</Text>
+                </View>
+
+                {/* Member rows */}
+                {fam.members.map((mem, mi) => {
+                  const ms = Math.abs(mem.net) < 0.5;
+                  return (
+                    <View key={mem.id} style={{
+                      flexDirection: "row", borderTop: `1 solid ${C.gray200}`,
+                      backgroundColor: mi % 2 === 0 ? C.white : C.gray50,
+                    }} wrap={false}>
+                      <View style={{ flex: 1, flexDirection: "row", alignItems: "center", padding: "5 10" }}>
+                        <View style={{ width: 20, height: 20, borderRadius: 99, backgroundColor: c.bg,
+                          alignItems: "center", justifyContent: "center", marginRight: 7 }}>
+                          <Text style={{ fontSize: 8, fontFamily: "Helvetica-Bold", color: c.text }}>
+                            {mem.name[0]?.toUpperCase() ?? "?"}
+                          </Text>
+                        </View>
+                        <Text style={{ fontSize: 8.5, fontFamily: "Helvetica-Bold", color: C.gray900 }}>{mem.name}</Text>
+                      </View>
+                      <Text style={[s.tCell, { width: 75, textAlign: "right", color: mem.paid > 0 ? C.gray700 : C.gray400 }]}>
+                        {mem.paid > 0 ? rupee(mem.paid) : "—"}
+                      </Text>
+                      <Text style={[s.tCell, { width: 75, textAlign: "right" }]}>{rupee(mem.share)}</Text>
+                      <Text style={[s.tCellBold, { width: 95, textAlign: "right",
+                        color: ms ? C.gray400 : mem.net > 0 ? C.emerald : C.rose,
+                      }]}>
+                        {ms ? "Even ✓" : mem.net > 0 ? `Gets  ${rupee(mem.net)}` : `Pays  ${rupee(-mem.net)}`}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            );
+          })}
+
+          {/* ══ SECTION 3: SETTLEMENT ══ */}
+          <Text style={[s.secHdr, { marginTop: 20 }]}>3 · Settlement — Who Pays Whom</Text>
+          <View style={s.settlInfo}>
+            <Text style={s.settlInfoTxt}>
+              <Text style={{ fontFamily: "Helvetica-Bold" }}>How to use: </Text>
+              Each card shows a person and the exact amount to transfer to the recipient.
+              Once all transfers are made, every family is settled.
+            </Text>
           </View>
+
+          {settlGroups.length === 0 ? (
+            <View style={[s.settlInfo, { backgroundColor: C.emeraldBg, borderColor: C.emerald }]}>
+              <Text style={[s.settlInfoTxt, { color: C.emerald, fontFamily: "Helvetica-Bold" }]}>
+                Everyone is already settled up — no transfers needed!
+              </Text>
+            </View>
+          ) : (
+            settlGroups.map((grp, gi) => (
+              <View key={gi} style={s.settlGroup} wrap={false}>
+                <View style={s.settlLabel}>
+                  <View style={s.settlLine} />
+                  <Text style={s.settlBadge}>
+                    Receiving: {grp.toName}  ({grp.toFamily})
+                  </Text>
+                  <View style={s.settlLine} />
+                </View>
+                <View style={s.settlGrid}>
+                  {grp.transfers.map((t, ti) => (
+                    <View key={ti} style={s.settlCard} wrap={false}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={s.settlFrom}>{t.fromName}</Text>
+                        <Text style={s.settlFam}>{t.fromFamily}</Text>
+                      </View>
+                      <Text style={s.settlAmt}>{rupee(t.amount)}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            ))
+          )}
 
         </View>
 
-        {/* ── Footer ── */}
+        {/* ══ FOOTER ══ */}
         <View style={s.footer} fixed>
-          <Text style={s.footerText}>{tripName}  ·  Detailed Bill  ·  Generated {generatedOn}</Text>
+          <Text style={s.footerTxt}>{tripName}  ·  Detailed Bill  ·  Generated {generatedOn}</Text>
           <Text style={s.pageNum} render={({ pageNumber, totalPages }) => `Page ${pageNumber} / ${totalPages}`} />
         </View>
 
