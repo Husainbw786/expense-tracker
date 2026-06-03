@@ -25,10 +25,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     generatedOn,
   });
 
-  const buffer = await renderToBuffer(pdf);
+  const buffer = await renderToBuffer(pdf as any);
   const filename = `${trip.name.replace(/\s+/g, "-")}-Summary.pdf`;
 
-  return new Response(buffer, {
+  return new Response(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename="${filename}"`,
