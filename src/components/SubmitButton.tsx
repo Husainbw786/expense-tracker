@@ -1,14 +1,10 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
+import { useState } from "react";
 
 function Spinner() {
   return (
-    <svg
-      className="w-4 h-4 animate-spin"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
+    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
     </svg>
@@ -26,14 +22,22 @@ export function SubmitButton({
   className?: string;
   disabled?: boolean;
 }) {
-  const { pending } = useFormStatus();
+  const [loading, setLoading] = useState(false);
+
   return (
     <button
       type="submit"
-      disabled={pending || disabled}
+      disabled={loading || disabled}
       className={className}
+      onClick={(e) => {
+        // Only set loading if the form is actually valid and will submit
+        const form = (e.currentTarget as HTMLButtonElement).closest("form");
+        if (!form || form.checkValidity()) {
+          setLoading(true);
+        }
+      }}
     >
-      {pending ? (
+      {loading ? (
         <span className="flex items-center justify-center gap-2">
           <Spinner />
           {loadingText ?? "Please wait…"}
@@ -45,7 +49,7 @@ export function SubmitButton({
   );
 }
 
-// Compact icon-only / text-only variant (for delete / remove links)
+// Compact link-style button (for Delete / Remove)
 export function SubmitLink({
   children,
   loadingText = "…",
@@ -55,10 +59,23 @@ export function SubmitLink({
   loadingText?: string;
   className?: string;
 }) {
-  const { pending } = useFormStatus();
+  const [loading, setLoading] = useState(false);
+
   return (
-    <button type="submit" disabled={pending} className={className}>
-      {pending ? loadingText : children}
+    <button
+      type="submit"
+      disabled={loading}
+      className={className}
+      onClick={() => setLoading(true)}
+    >
+      {loading ? (
+        <span className="flex items-center gap-1">
+          <Spinner />
+          {loadingText}
+        </span>
+      ) : (
+        children
+      )}
     </button>
   );
 }
