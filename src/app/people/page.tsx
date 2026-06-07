@@ -1,6 +1,7 @@
 import { getFamilies, getMembersWithFamily } from "@/lib/data";
 import { addFamily, addMember, deleteFamily, deleteMember } from "@/app/actions";
 import { SubmitButton, SubmitLink } from "@/components/SubmitButton";
+import { requireUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,11 @@ function initials(name: string) {
 }
 
 export default async function PeoplePage() {
-  const [families, members] = await Promise.all([getFamilies(), getMembersWithFamily()]);
+  const user = await requireUser();
+  const [families, members] = await Promise.all([
+    getFamilies(user.id),
+    getMembersWithFamily(user.id),
+  ]);
 
   return (
     <main className="px-4 pt-6 pb-28">

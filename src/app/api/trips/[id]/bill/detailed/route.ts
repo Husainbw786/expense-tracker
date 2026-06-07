@@ -1,11 +1,16 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 import { getTrip, getTripSummary, getTripExpensesWithDetails } from "@/lib/data";
+import { getCurrentUser, getTripRole } from "@/lib/auth";
 import { DetailedBillPDF } from "@/lib/pdf-detailed";
 import { createElement } from "react";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const tripId = Number(id);
+
+  const user = await getCurrentUser();
+  if (!user) return new Response("Unauthorized", { status: 401 });
+  if (!(await getTripRole(tripId, user.id))) return new Response("Forbidden", { status: 403 });
 
   const [trip, summary, expenses] = await Promise.all([
     getTrip(tripId),

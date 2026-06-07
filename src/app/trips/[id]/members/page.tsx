@@ -8,6 +8,7 @@ import {
   removeMemberFromTrip,
 } from "@/app/actions";
 import { SubmitLink } from "@/components/SubmitButton";
+import { requireTripAccess } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,7 @@ export default async function TripMembersPage({
 }) {
   const { id } = await params;
   const tripId = Number(id);
+  await requireTripAccess(tripId, "editor");
   const trip = await getTrip(tripId);
   if (!trip) notFound();
   const roster = await getTripRoster(tripId);

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTrip, getTripExpensesWithDetails, getTripSummary } from "@/lib/data";
 import { formatMoney } from "@/lib/calc";
+import { requireTripAccess } from "@/lib/auth";
 import PrintButton from "./PrintButton";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,7 @@ export default async function BillPage({
 }) {
   const { id } = await params;
   const tripId = Number(id);
+  await requireTripAccess(tripId, "viewer");
   const [trip, expenses, summary] = await Promise.all([
     getTrip(tripId),
     getTripExpensesWithDetails(tripId),

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTrip, getTripSummary } from "@/lib/data";
 import { formatMoney } from "@/lib/calc";
+import { requireTripAccess } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ export default async function TripSummary({
 }) {
   const { id } = await params;
   const tripId = Number(id);
+  const { role } = await requireTripAccess(tripId, "viewer");
   const trip = await getTrip(tripId);
   if (!trip) notFound();
   const s = await getTripSummary(tripId);
@@ -74,6 +76,23 @@ export default async function TripSummary({
             </div>
           </div>
         )}
+
+        <div className="flex gap-2 mt-4">
+          <Link
+            href={`/trips/${tripId}/activity`}
+            className="flex-1 text-center rounded-xl bg-gray-100 text-gray-600 text-xs font-semibold py-2"
+          >
+            🕑 Activity
+          </Link>
+          {role === "owner" && (
+            <Link
+              href={`/trips/${tripId}/collaborators`}
+              className="flex-1 text-center rounded-xl bg-indigo-50 text-indigo-600 text-xs font-semibold py-2"
+            >
+              👥 Share &amp; invite
+            </Link>
+          )}
+        </div>
       </div>
 
       {s.memberCount === 0 ? (

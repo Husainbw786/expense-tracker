@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTrip, getFamilies, getTripMembers } from "@/lib/data";
 import { addExpense } from "@/app/actions";
+import { requireTripAccess } from "@/lib/auth";
 import ExpenseForm from "@/components/ExpenseForm";
 
 export const dynamic = "force-dynamic";
@@ -13,12 +14,13 @@ export default async function NewExpensePage({
 }) {
   const { id } = await params;
   const tripId = Number(id);
-  const [trip, families, members] = await Promise.all([
-    getTrip(tripId),
-    getFamilies(),
+  await requireTripAccess(tripId, "editor");
+  const trip = await getTrip(tripId);
+  if (!trip) notFound();
+  const [families, members] = await Promise.all([
+    getFamilies(trip.ownerId ?? 0),
     getTripMembers(tripId),
   ]);
-  if (!trip) notFound();
 
   return (
     <main className="pb-28">

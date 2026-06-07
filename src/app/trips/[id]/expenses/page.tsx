@@ -4,6 +4,7 @@ import { getTrip, getTripExpensesWithDetails } from "@/lib/data";
 import { formatMoney } from "@/lib/calc";
 import { deleteExpense } from "@/app/actions";
 import { SubmitLink } from "@/components/SubmitButton";
+import { requireTripAccess, canWrite } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,8 @@ export default async function TripExpensesPage({
 }) {
   const { id } = await params;
   const tripId = Number(id);
+  const { role } = await requireTripAccess(tripId, "viewer");
+  const writable = canWrite(role);
   const trip = await getTrip(tripId);
   if (!trip) notFound();
   const expenses = await getTripExpensesWithDetails(tripId);
@@ -78,23 +81,25 @@ export default async function TripExpensesPage({
                       <p className="font-bold text-gray-900 text-sm">{formatMoney(e.amount)}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-3 pt-3 border-t border-gray-50">
-                    <Link
-                      href={`/trips/${tripId}/expenses/${e.id}/edit`}
-                      className="flex-1 text-center rounded-xl bg-indigo-50 text-indigo-600 font-semibold text-sm py-2"
-                    >
-                      Edit
-                    </Link>
-                    <form action={deleteExpense} className="flex-1">
-                      <input type="hidden" name="id" value={e.id} />
-                      <SubmitLink
-                        loadingText="Deleting…"
-                        className="w-full rounded-xl bg-rose-50 text-rose-600 font-semibold text-sm py-2 block text-center disabled:opacity-60"
+                  {writable && (
+                    <div className="flex gap-2 mt-3 pt-3 border-t border-gray-50">
+                      <Link
+                        href={`/trips/${tripId}/expenses/${e.id}/edit`}
+                        className="flex-1 text-center rounded-xl bg-indigo-50 text-indigo-600 font-semibold text-sm py-2"
                       >
-                        Delete
-                      </SubmitLink>
-                    </form>
-                  </div>
+                        Edit
+                      </Link>
+                      <form action={deleteExpense} className="flex-1">
+                        <input type="hidden" name="id" value={e.id} />
+                        <SubmitLink
+                          loadingText="Deleting…"
+                          className="w-full rounded-xl bg-rose-50 text-rose-600 font-semibold text-sm py-2 block text-center disabled:opacity-60"
+                        >
+                          Delete
+                        </SubmitLink>
+                      </form>
+                    </div>
+                  )}
                 </div>
               );
             })}

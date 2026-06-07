@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTrip, getFamilies, getTripMembers, getExpenseById } from "@/lib/data";
 import { updateExpense } from "@/app/actions";
+import { requireTripAccess } from "@/lib/auth";
 import ExpenseForm from "@/components/ExpenseForm";
 
 export const dynamic = "force-dynamic";
@@ -14,9 +15,10 @@ export default async function EditExpensePage({
   const { id, expId } = await params;
   const tripId = Number(id);
   const expenseId = Number(expId);
-  const [trip, families, members, expense] = await Promise.all([
-    getTrip(tripId),
-    getFamilies(),
+  await requireTripAccess(tripId, "editor");
+  const trip = await getTrip(tripId);
+  const [families, members, expense] = await Promise.all([
+    getFamilies(trip?.ownerId ?? 0),
     getTripMembers(tripId),
     getExpenseById(expenseId),
   ]);

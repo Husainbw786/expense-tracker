@@ -2,12 +2,21 @@ import Link from "next/link";
 import { getTrips } from "@/lib/data";
 import { formatMoney } from "@/lib/calc";
 import { createTrip } from "@/app/actions";
+import { logout } from "@/app/auth/actions";
 import { SubmitButton } from "@/components/SubmitButton";
+import { requireUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
+const ROLE_BADGE: Record<string, { label: string; cls: string }> = {
+  owner: { label: "Owner", cls: "bg-indigo-50 text-indigo-600" },
+  editor: { label: "Editor", cls: "bg-emerald-50 text-emerald-600" },
+  viewer: { label: "Viewer", cls: "bg-gray-100 text-gray-500" },
+};
+
 export default async function TripsHome() {
-  const trips = await getTrips();
+  const user = await requireUser();
+  const trips = await getTrips(user.id);
 
   return (
     <main className="px-4 pt-6 pb-28">
@@ -15,11 +24,16 @@ export default async function TripsHome() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Trips</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Track shared expenses</p>
+          <p className="text-sm text-gray-400 mt-0.5">Hi {user.name.split(" ")[0]} 👋</p>
         </div>
-        <div className="h-10 w-10 rounded-2xl bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-base">
-          T
-        </div>
+        <form action={logout}>
+          <button
+            className="h-10 px-3 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-600 font-medium text-xs"
+            title={`Logged in as ${user.email}`}
+          >
+            Log out
+          </button>
+        </form>
       </div>
 
       {/* Trip list */}
@@ -40,7 +54,12 @@ export default async function TripsHome() {
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-semibold text-gray-900 text-base">{t.name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-gray-900 text-base">{t.name}</p>
+                    <span className={`chip ${ROLE_BADGE[t.role]?.cls ?? ""}`}>
+                      {ROLE_BADGE[t.role]?.label ?? t.role}
+                    </span>
+                  </div>
                   <div className="flex items-center gap-2 mt-1.5">
                     <span className="chip bg-indigo-50 text-indigo-600">
                       {t.memberCount} {t.memberCount === 1 ? "person" : "people"}
