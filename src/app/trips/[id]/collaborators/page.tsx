@@ -7,6 +7,7 @@ import {
   revokeInvite,
   removeCollaborator,
   setCollaboratorRole,
+  addCollaboratorByEmail,
 } from "@/app/actions";
 import { SubmitButton, SubmitLink } from "@/components/SubmitButton";
 import CopyInvite from "@/components/CopyInvite";
@@ -15,10 +16,13 @@ export const dynamic = "force-dynamic";
 
 export default async function CollaboratorsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ added?: string; updated?: string; notfound?: string; msg?: string }>;
 }) {
   const { id } = await params;
+  const sp = await searchParams;
   const tripId = Number(id);
   await requireTripAccess(tripId, "owner");
   const trip = await getTrip(tripId);
@@ -28,6 +32,16 @@ export default async function CollaboratorsPage({
     getTripCollaborators(tripId),
     getTripInvites(tripId),
   ]);
+
+  const banner = sp.added
+    ? { ok: true, text: `Added ${sp.added} ✓` }
+    : sp.updated
+    ? { ok: true, text: `Updated ${sp.updated}'s role ✓` }
+    : sp.notfound
+    ? { ok: false, text: `No account found for "${sp.notfound}". Ask them to sign up first, or share an invite link below.` }
+    : sp.msg
+    ? { ok: false, text: sp.msg }
+    : null;
 
   return (
     <main className="pb-28">
@@ -40,6 +54,45 @@ export default async function CollaboratorsPage({
       </div>
 
       <div className="px-4 pt-4 space-y-5">
+        {banner && (
+          <div
+            className={`rounded-2xl px-4 py-2.5 text-sm ${
+              banner.ok ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+            }`}
+          >
+            {banner.text}
+          </div>
+        )}
+
+        {/* Invite by email (direct add if they have an account) */}
+        <div>
+          <p className="section-label">Invite by email</p>
+          <form action={addCollaboratorByEmail} className="card p-4 space-y-3">
+            <input type="hidden" name="tripId" value={tripId} />
+            <p className="text-sm text-gray-500">
+              If this person already has an account, they get access instantly.
+            </p>
+            <input
+              name="email"
+              type="email"
+              required
+              placeholder="their@email.com"
+              className="input"
+            />
+            <div className="flex gap-2">
+              <select name="role" defaultValue="editor" className="input flex-1">
+                <option value="editor">Editor — can add &amp; edit</option>
+                <option value="viewer">Viewer — read only</option>
+              </select>
+              <SubmitButton
+                loadingText="Adding…"
+                className="shrink-0 rounded-2xl bg-indigo-600 px-5 font-semibold text-white text-sm disabled:opacity-60"
+              >
+                Add
+              </SubmitButton>
+            </div>
+          </form>
+        </div>
         {/* Generate invite link */}
         <div>
           <p className="section-label">Create an invite link</p>
@@ -121,6 +174,15 @@ export default async function CollaboratorsPage({
                     <span className="chip bg-indigo-50 text-indigo-600">Owner</span>
                   ) : (
                     <>
+                      <span
+                        className={`chip ${
+                          c.role === "editor"
+                            ? "bg-emerald-50 text-emerald-600"
+                            : "bg-gray-100 text-gray-500"
+                        }`}
+                      >
+                        {c.role === "editor" ? "Editor" : "Viewer"}
+                      </span>
                       <form action={setCollaboratorRole}>
                         <input type="hidden" name="tripId" value={tripId} />
                         <input type="hidden" name="userId" value={c.userId} />
@@ -129,8 +191,8 @@ export default async function CollaboratorsPage({
                           name="role"
                           value={c.role === "editor" ? "viewer" : "editor"}
                         />
-                        <SubmitLink className="chip bg-gray-100 text-gray-600">
-                          {c.role === "editor" ? "Editor ⇄" : "Viewer ⇄"}
+                        <SubmitLink className="text-xs font-medium text-indigo-600">
+                          {c.role === "editor" ? "→ Viewer" : "→ Editor"}
                         </SubmitLink>
                       </form>
                       <form action={removeCollaborator}>

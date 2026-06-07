@@ -3,6 +3,7 @@
 import { randomBytes } from "crypto";
 import { db } from "@/db";
 import {
+  users,
   families,
   members,
   trips,
@@ -296,6 +297,42 @@ export async function createInvite(formData: FormData) {
     token, tripId, role, createdById: user.id, active: true, createdAt: new Date(),
   });
   revalidateAll();
+}
+
+// Add someone directly by email (if they already have an account).
+export async function addCollaboratorByEmail(formData: FormData) {
+  const tripId = Number(formData.get("tripId"));
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const role = String(formData.get("role") ?? "viewer") === "editor" ? "editor" : "viewer";
+  if (!tripId || !email) return;
+  const { user: owner } = await requireTripAccess(tripId, "owner");
+  const back = `/trips/${tripId}/collaborators`;
+
+  const [u] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  if (!u) {
+    redirect(`${back}?notfound=${encodeURIComponent(email)}`);
+  }
+
+  const existing = await getTripRole(tripId, u.id);
+  if (existing === "owner") {
+    redirect(`${back}?msg=${encodeURIComponent(u.name + " is the owner")}`);
+  }
+  if (existing) {
+    await db
+      .update(tripCollaborators)
+      .set({ role })
+      .where(and(eq(tripCollaborators.tripId, tripId), eq(tripCollaborators.userId, u.id)));
+    revalidateAll();
+    redirect(`${back}?updated=${encodeURIComponent(u.name)}`);
+  }
+
+  await db.insert(tripCollaborators).values({ tripId, userId: u.id, role, createdAt: new Date() });
+  await logActivity({
+    tripId, userId: owner.id, actorName: owner.name,
+    action: "collaborator.added", summary: `gave ${u.name} ${role} access (by email)`,
+  });
+  revalidateAll();
+  redirect(`${back}?added=${encodeURIComponent(u.name)}`);
 }
 
 export async function revokeInvite(formData: FormData) {
