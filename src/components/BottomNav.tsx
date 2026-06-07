@@ -1,7 +1,58 @@
 "use client";
 
 import Link from "next/link";
+import { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+
+function NavSpinner() {
+  return (
+    <span className="w-5 h-5 rounded-full border-2 border-indigo-200 border-t-indigo-600 animate-spin" />
+  );
+}
+
+// Inner content of a nav tab — shows a spinner over the icon while the
+// tapped link's navigation is pending (useLinkStatus must run inside <Link>).
+function TabInner({
+  icon,
+  label,
+  active,
+  underlineClass,
+}: {
+  icon: ReactNode;
+  label: string;
+  active: boolean;
+  underlineClass: string;
+}) {
+  const { pending } = useLinkStatus();
+  return (
+    <>
+      {active && (
+        <span className={`absolute top-0 h-0.5 bg-indigo-600 rounded-b-full ${underlineClass}`} />
+      )}
+      {pending ? <NavSpinner /> : icon}
+      {label}
+    </>
+  );
+}
+
+function AddInner() {
+  const { pending } = useLinkStatus();
+  return (
+    <>
+      <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-600 shadow-md shadow-indigo-200">
+        {pending ? (
+          <span className="h-5 w-5 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+        ) : (
+          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+          </svg>
+        )}
+      </span>
+      <span className="text-[10px] font-semibold text-indigo-600">Add</span>
+    </>
+  );
+}
 
 function IconTrips({ active }: { active: boolean }) {
   return (
@@ -62,11 +113,7 @@ export default function BottomNav() {
                 t.active ? "text-indigo-600" : "text-gray-400"
               }`}
             >
-              {t.active && (
-                <span className="absolute top-0 left-3 right-3 h-0.5 bg-indigo-600 rounded-b-full" />
-              )}
-              {t.icon}
-              {t.label}
+              <TabInner icon={t.icon} label={t.label} active={t.active} underlineClass="left-3 right-3" />
             </Link>
           ))}
           {/* Add button in center */}
@@ -74,12 +121,7 @@ export default function BottomNav() {
             href={`${base}/expenses/new`}
             className="flex flex-col items-center gap-1 py-2 px-4"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-600 shadow-md shadow-indigo-200">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-              </svg>
-            </span>
-            <span className="text-[10px] font-semibold text-indigo-600">Add</span>
+            <AddInner />
           </Link>
         </div>
       </nav>
@@ -102,11 +144,7 @@ export default function BottomNav() {
               t.active ? "text-indigo-600" : "text-gray-400"
             }`}
           >
-            {t.active && (
-              <span className="absolute top-0 left-8 right-8 h-0.5 bg-indigo-600 rounded-b-full" />
-            )}
-            {t.icon}
-            {t.label}
+            <TabInner icon={t.icon} label={t.label} active={t.active} underlineClass="left-8 right-8" />
           </Link>
         ))}
       </div>
