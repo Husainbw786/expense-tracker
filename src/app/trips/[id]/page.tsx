@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTrip, getTripSummary } from "@/lib/data";
 import { formatMoney } from "@/lib/calc";
 import { requireTripAccess } from "@/lib/auth";
+import DeleteTripButton from "@/components/DeleteTripButton";
 
 export const dynamic = "force-dynamic";
 
@@ -93,6 +94,11 @@ export default async function TripSummary({
             </Link>
           )}
         </div>
+        {role === "owner" && (
+          <div className="mt-2">
+            <DeleteTripButton tripId={tripId} />
+          </div>
+        )}
       </div>
 
       {s.memberCount === 0 ? (
