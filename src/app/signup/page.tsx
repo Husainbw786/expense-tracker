@@ -14,19 +14,17 @@ export default async function SignupPage({
   if (user) redirect(invite ? `/invite/${invite}` : redirectTo || "/");
 
   return (
-    <main className="px-5 pt-16 pb-10">
-      <div className="mb-8 text-center">
-        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600 text-2xl">
-          🧳
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
-        <p className="text-sm text-gray-400 mt-1">
+    <main className="px-6 pt-14 pb-10">
+      <div className="mb-9 text-center">
+        <p className="ts-eyebrow ts-eyebrow--accent">Trip Splitter</p>
+        <h1 className="ts-display mt-3">
+          Create your <em>account</em>
+        </h1>
+        <p className="ts-micro mt-2">
           {invite ? "Sign up to join the trip you were invited to" : "Start splitting trip expenses"}
         </p>
       </div>
-      <div className="card p-5">
-        <AuthForm mode="signup" redirectTo={redirectTo} invite={invite} />
-      </div>
+      <AuthForm mode="signup" redirectTo={redirectTo} invite={invite} />
     </main>
   );
 }

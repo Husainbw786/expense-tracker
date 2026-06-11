@@ -1,14 +1,67 @@
 @import "tailwindcss";
 
+/* ============================================================
+   Trip Splitter — editorial design system (Cloud Nails & Psychic)
+   Warm off-white canvas, warm ink scale, dusty-rose accent,
+   serif display + amounts, tracked uppercase micro-labels,
+   square corners, hairline borders.
+   ============================================================ */
+
 :root {
-  --background: #f3f4f6;
-  --foreground: #111827;
+  /* canvas + surfaces */
+  --background: #FEFDFB;
+  --foreground: #1A1714;
+  --surface-card: #FFFFFF;
+  --surface-inset: #F8F5F2;
+  --surface-accent: #FBF0F3;
+
+  /* ink scale (warm) */
+  --ink: #1A1714;
+  --ink-2: #6A635C;
+  --ink-3: #A8A09A;
+
+  /* rose accent */
+  --rose: #B85C72;
+  --rose-hover: #A04E63;
+  --rose-light: #C4697F;
+  --rose-ink: #7A3348;
+  --rose-border: #EDD0D8;
+
+  /* green (gets money / success) */
+  --green: #3A7D52;
+  --green-bg: #EDF6F1;
+
+  /* borders */
+  --hairline: #EAE5DF;
+  --border-strong: #D8D2CB;
+
+  /* type families (variables injected by next/font in layout.tsx) */
+  --font-serif: var(--font-libre), Georgia, serif;
+  --font-sans-ui: var(--font-josefin), "Helvetica Neue", Arial, sans-serif;
+  --font-script: var(--font-sacramento), cursive;
+
+  /* tracking scale — the brand signature */
+  --tracking-label: 0.16em;
+  --tracking-eyebrow: 0.24em;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rose: var(--rose);
+  --color-rose-hover: var(--rose-hover);
+  --color-rose-ink: var(--rose-ink);
+  --color-rose-border: var(--rose-border);
+  --color-green: var(--green);
+  --color-hairline: var(--hairline);
+  --color-border-strong: var(--border-strong);
+  --color-surface-inset: var(--surface-inset);
+  --color-surface-accent: var(--surface-accent);
+  --font-sans: var(--font-sans-ui);
+  --font-serif: var(--font-serif);
 }
 
 html {
@@ -16,55 +69,260 @@ html {
 }
 
 body {
-  background: var(--background);
+  background: var(--surface-inset);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, Arial, sans-serif;
+  font-family: var(--font-sans-ui);
 }
 
 @layer components {
+  /* ---- app column (used in layout.tsx) ---- */
+  .ts-app-col {
+    background: var(--background);
+    border-left: 1px solid var(--hairline);
+    border-right: 1px solid var(--hairline);
+    min-height: 100dvh;
+  }
+
+  /* ---- top bar wordmark ---- */
+  .ts-wordmark {
+    font-family: var(--font-script);
+    font-size: 1.55rem;
+    line-height: 1;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  /* ---- typography roles ---- */
+  .ts-eyebrow {
+    font-family: var(--font-sans-ui);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .ts-eyebrow--accent { color: var(--rose); }
+  .ts-display {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 1.9rem;
+    line-height: 1.15;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+  .ts-display em, .ts-h2 em { font-style: italic; color: var(--rose); }
+  .ts-h2 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 1.32rem;
+    line-height: 1.25;
+    color: var(--ink);
+  }
+  .ts-micro {
+    font-family: var(--font-sans-ui);
+    font-size: 0.8rem;
+    color: var(--ink-2);
+    letter-spacing: 0.04em;
+  }
+  .ts-meta {
+    font-family: var(--font-sans-ui);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .ts-money {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    color: var(--ink);
+    white-space: nowrap;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  /* ---- text links (quiet uppercase actions) ---- */
+  .ts-textlink {
+    font-family: var(--font-sans-ui);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-2);
+    transition: color 0.18s cubic-bezier(0.32, 0, 0.2, 1);
+    cursor: pointer;
+  }
+  .ts-textlink:hover { color: var(--rose); }
+  .ts-textlink--rose { color: var(--rose); }
+  .ts-textlink--rose:hover { color: var(--rose-hover); }
+  .ts-textlink--danger { color: var(--rose-ink); opacity: 0.75; }
+  .ts-textlink--danger:hover { opacity: 1; color: var(--rose-ink); }
+
+  /* ---- section heading rule ---- */
+  .ts-ledgerhead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid var(--ink);
+  }
+
+  /* ---- ledger rows ---- */
+  .ts-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 1rem;
+    margin: 0 -1rem;
+    border-bottom: 1px solid var(--hairline);
+    transition: background 0.18s cubic-bezier(0.32, 0, 0.2, 1);
+  }
+  .ts-row:hover { background: var(--surface-accent); }
+
+  /* ---- chips (on-trip / participants) ---- */
+  .ts-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ts-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: var(--surface-card);
+    border: 1px solid var(--border-strong);
+    border-radius: 0;
+    padding: 8px 13px;
+    font-family: var(--font-sans-ui);
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    transition: background 0.18s, border-color 0.18s, color 0.18s;
+  }
+  .ts-chip:hover { border-color: var(--rose-light); }
+  .ts-chip.is-on {
+    background: var(--surface-accent);
+    border-color: var(--rose);
+    color: var(--rose-ink);
+  }
+  .ts-chip__mark { font-size: 0.7em; color: var(--ink-3); }
+  .ts-chip.is-on .ts-chip__mark { color: var(--rose); }
+
+  /* ---- charts ---- */
+  .ts-track {
+    height: 10px;
+    background: var(--surface-inset);
+    border: 1px solid var(--hairline);
+  }
+  .ts-fill { height: 100%; background: var(--rose); }
+
+  /* ============================================================
+     LEGACY CLASS NAMES — kept so not-yet-rewritten screens
+     (members, expense form, activity, collaborators, auth)
+     pick up the editorial look without code changes.
+     ============================================================ */
   .input {
     width: 100%;
-    border-radius: 1rem;
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    padding: 0.75rem 1rem;
-    font-size: 0.9375rem;
+    border-radius: 0;
+    border: 1px solid var(--hairline);
+    background: var(--surface-inset);
+    padding: 0.7rem 0.85rem;
+    font-size: 0.9rem;
+    font-family: var(--font-sans-ui);
+    color: var(--ink);
     outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: border-color 0.15s;
   }
-  .input:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
-  }
+  .input::placeholder { color: var(--ink-3); }
+  .input:focus { border-color: var(--rose); box-shadow: none; }
+
   .card {
-    background: white;
-    border-radius: 1rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+    background: var(--surface-card);
+    border-radius: 0;
+    border: 1px solid var(--hairline);
+    box-shadow: none;
   }
+
   .section-label {
-    font-size: 0.6875rem;
+    font-family: var(--font-sans-ui);
+    font-size: 0.68rem;
     font-weight: 600;
-    color: #6b7280;
-    letter-spacing: 0.06em;
+    color: var(--rose);
+    letter-spacing: var(--tracking-eyebrow);
     text-transform: uppercase;
     margin-bottom: 0.5rem;
     padding: 0 0.25rem;
   }
+
   .chip {
     display: inline-flex;
     align-items: center;
-    padding: 0.125rem 0.625rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 0;
+    border: 1px solid var(--hairline);
+    background: var(--surface-inset);
+    color: var(--ink-2);
+    font-size: 0.66rem;
     font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
+
   .avatar-circle {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.75rem;
-    font-weight: 700;
-    font-size: 0.875rem;
+    border-radius: 0; /* square — editorial */
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
     flex-shrink: 0;
+    background: var(--surface-inset);
+    color: var(--ink-2);
+    border: 1px solid var(--hairline);
   }
+
+  /* primary action (square, uppercase, tracked) */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: var(--rose);
+    color: #fff;
+    border-radius: 0;
+    padding: 12px 24px;
+    font-family: var(--font-sans-ui);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: background 0.18s;
+    cursor: pointer;
+  }
+  .btn-primary:hover { background: var(--rose-hover); }
+  .btn-primary:disabled { background: var(--border-strong); color: var(--ink-3); cursor: default; }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--border-strong);
+    border-radius: 0;
+    padding: 11px 22px;
+    font-family: var(--font-sans-ui);
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    transition: border-color 0.18s;
+    cursor: pointer;
+  }
+  .btn-ghost:hover { border-color: var(--ink); }
 }

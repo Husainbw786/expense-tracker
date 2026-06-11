@@ -27,11 +27,19 @@ export default async function EditExpensePage({
 
   return (
     <main className="pb-28">
-      <div className="bg-white px-4 pt-6 pb-4 border-b border-gray-100">
-        <Link href={`/trips/${tripId}/expenses`} className="text-sm text-indigo-600 font-medium">
+      <div className="px-6 pt-7">
+        <Link
+          href={`/trips/${tripId}/expenses`}
+          className="ts-textlink ts-textlink--rose inline-flex items-center gap-1.5"
+        >
           ← Expenses
         </Link>
-        <h1 className="mt-1 text-xl font-bold text-gray-900">Edit Expense</h1>
+        <div className="ts-ledgerhead mt-5">
+          <p className="ts-eyebrow ts-eyebrow--accent">Edit entry</p>
+        </div>
+        <h1 className="ts-h2 mt-3.5">
+          Edit <em>expense</em>
+        </h1>
       </div>
 
       <ExpenseForm
@@ -39,7 +47,7 @@ export default async function EditExpensePage({
         members={members}
         families={families}
         action={updateExpense}
-        submitLabel="Save Changes"
+        submitLabel="Save changes"
         initial={{
           id: expense.id,
           description: expense.description,

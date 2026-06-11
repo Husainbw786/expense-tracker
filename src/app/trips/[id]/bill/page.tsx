@@ -43,8 +43,8 @@ export default async function BillPage({
       `}</style>
 
       {/* Screen toolbar — hidden when printing */}
-      <div className="no-print bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between max-w-3xl mx-auto">
-        <Link href={`/trips/${tripId}`} className="text-sm text-indigo-600 font-medium">
+      <div className="no-print bg-white border-b border-hairline px-4 py-3 flex items-center justify-between max-w-3xl mx-auto">
+        <Link href={`/trips/${tripId}`} className="text-sm text-rose font-medium">
           ← Back to Summary
         </Link>
         <PrintButton />
@@ -78,30 +78,30 @@ export default async function BillPage({
           </h2>
           <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="bg-gray-50">
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-gray-200">#</th>
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-gray-200">Description</th>
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-gray-200">Category</th>
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-gray-200">Date</th>
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-gray-200">Paid by</th>
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-gray-200">Split</th>
-                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-gray-200">Amount</th>
-                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-gray-200">Per person</th>
+              <tr className="bg-surface-inset">
+                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-hairline">#</th>
+                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-hairline">Description</th>
+                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-hairline">Category</th>
+                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-hairline">Date</th>
+                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-hairline">Paid by</th>
+                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-hairline">Split</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-hairline">Amount</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-hairline">Per person</th>
               </tr>
             </thead>
             <tbody>
               {sortedExpenses.map((e, i) => {
                 const perPerson = e.participantCount > 0 ? e.amount / e.participantCount : 0;
                 return (
-                  <tr key={e.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                    <td className="px-3 py-2 text-gray-400 border border-gray-200">{i + 1}</td>
-                    <td className="px-3 py-2 font-medium text-gray-900 border border-gray-200">{e.description}</td>
-                    <td className="px-3 py-2 text-gray-600 border border-gray-200">{e.category}</td>
-                    <td className="px-3 py-2 text-gray-500 border border-gray-200">{e.spentOn ?? "—"}</td>
-                    <td className="px-3 py-2 text-gray-700 border border-gray-200">{e.payerName}</td>
-                    <td className="px-3 py-2 text-gray-500 border border-gray-200">{e.participantCount} people</td>
-                    <td className="px-3 py-2 text-right font-semibold text-gray-900 border border-gray-200">{formatMoney(e.amount)}</td>
-                    <td className="px-3 py-2 text-right text-gray-600 border border-gray-200">{formatMoney(perPerson)}</td>
+                  <tr key={e.id} className={i % 2 === 0 ? "bg-white" : "bg-surface-inset"}>
+                    <td className="px-3 py-2 text-gray-400 border border-hairline">{i + 1}</td>
+                    <td className="px-3 py-2 font-medium text-gray-900 border border-hairline">{e.description}</td>
+                    <td className="px-3 py-2 text-gray-600 border border-hairline">{e.category}</td>
+                    <td className="px-3 py-2 text-gray-500 border border-hairline">{e.spentOn ?? "—"}</td>
+                    <td className="px-3 py-2 text-gray-700 border border-hairline">{e.payerName}</td>
+                    <td className="px-3 py-2 text-gray-500 border border-hairline">{e.participantCount} people</td>
+                    <td className="px-3 py-2 text-right font-semibold text-gray-900 border border-hairline">{formatMoney(e.amount)}</td>
+                    <td className="px-3 py-2 text-right text-gray-600 border border-hairline">{formatMoney(perPerson)}</td>
                   </tr>
                 );
               })}
@@ -123,12 +123,12 @@ export default async function BillPage({
           </h2>
           <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="bg-gray-50">
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-gray-200">Person</th>
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-gray-200">Family</th>
-                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-gray-200">Total Paid</th>
-                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-gray-200">Fair Share</th>
-                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-gray-200">Balance</th>
+              <tr className="bg-surface-inset">
+                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-hairline">Person</th>
+                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-hairline">Family</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-hairline">Total Paid</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-hairline">Fair Share</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-hairline">Balance</th>
               </tr>
             </thead>
             <tbody>
@@ -136,14 +136,14 @@ export default async function BillPage({
                 f.members.map((m, mi) => {
                   const settled = Math.abs(m.net) < 0.01;
                   return (
-                    <tr key={m.id} className={fi % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                      <td className="px-3 py-2 font-medium text-gray-900 border border-gray-200">{m.name}</td>
-                      <td className="px-3 py-2 text-gray-500 border border-gray-200">
+                    <tr key={m.id} className={fi % 2 === 0 ? "bg-white" : "bg-surface-inset"}>
+                      <td className="px-3 py-2 font-medium text-gray-900 border border-hairline">{m.name}</td>
+                      <td className="px-3 py-2 text-gray-500 border border-hairline">
                         {mi === 0 ? f.name : ""}
                       </td>
-                      <td className="px-3 py-2 text-right text-gray-700 border border-gray-200">{formatMoney(m.paid)}</td>
-                      <td className="px-3 py-2 text-right text-gray-700 border border-gray-200">{formatMoney(m.share)}</td>
-                      <td className={`px-3 py-2 text-right font-semibold border border-gray-200 ${settled ? "text-gray-400" : m.net > 0 ? "text-green-700" : "text-red-700"}`}>
+                      <td className="px-3 py-2 text-right text-gray-700 border border-hairline">{formatMoney(m.paid)}</td>
+                      <td className="px-3 py-2 text-right text-gray-700 border border-hairline">{formatMoney(m.share)}</td>
+                      <td className={`px-3 py-2 text-right font-semibold border border-hairline ${settled ? "text-gray-400" : m.net > 0 ? "text-green" : "text-rose-ink"}`}>
                         {settled ? "Even" : m.net > 0 ? `Gets ${formatMoney(m.net)}` : `Owes ${formatMoney(-m.net)}`}
                       </td>
                     </tr>
@@ -161,24 +161,24 @@ export default async function BillPage({
           </h2>
           <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="bg-gray-50">
-                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-gray-200">Family</th>
-                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-gray-200">Members</th>
-                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-gray-200">Total Paid</th>
-                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-gray-200">Fair Share</th>
-                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-gray-200">Balance</th>
+              <tr className="bg-surface-inset">
+                <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-hairline">Family</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-hairline">Members</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-hairline">Total Paid</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-hairline">Fair Share</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-hairline">Balance</th>
               </tr>
             </thead>
             <tbody>
               {summary.familyBalances.map((f, i) => {
                 const settled = Math.abs(f.net) < 0.01;
                 return (
-                  <tr key={f.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                    <td className="px-3 py-2 font-semibold text-gray-900 border border-gray-200">{f.name}</td>
-                    <td className="px-3 py-2 text-right text-gray-600 border border-gray-200">{f.memberCount}</td>
-                    <td className="px-3 py-2 text-right text-gray-700 border border-gray-200">{formatMoney(f.paid)}</td>
-                    <td className="px-3 py-2 text-right text-gray-700 border border-gray-200">{formatMoney(f.share)}</td>
-                    <td className={`px-3 py-2 text-right font-bold border border-gray-200 ${settled ? "text-gray-400" : f.net > 0 ? "text-green-700" : "text-red-700"}`}>
+                  <tr key={f.id} className={i % 2 === 0 ? "bg-white" : "bg-surface-inset"}>
+                    <td className="px-3 py-2 font-semibold text-gray-900 border border-hairline">{f.name}</td>
+                    <td className="px-3 py-2 text-right text-gray-600 border border-hairline">{f.memberCount}</td>
+                    <td className="px-3 py-2 text-right text-gray-700 border border-hairline">{formatMoney(f.paid)}</td>
+                    <td className="px-3 py-2 text-right text-gray-700 border border-hairline">{formatMoney(f.share)}</td>
+                    <td className={`px-3 py-2 text-right font-bold border border-hairline ${settled ? "text-gray-400" : f.net > 0 ? "text-green" : "text-rose-ink"}`}>
                       {settled ? "Even" : f.net > 0 ? `Gets ${formatMoney(f.net)}` : `Owes ${formatMoney(-f.net)}`}
                     </td>
                   </tr>
@@ -198,18 +198,18 @@ export default async function BillPage({
           ) : (
             <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-gray-200">From (pays)</th>
-                  <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-gray-200">To (receives)</th>
-                  <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-gray-200">Amount</th>
+                <tr className="bg-surface-inset">
+                  <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-hairline">From (pays)</th>
+                  <th className="text-left px-3 py-2 font-semibold text-gray-600 border border-hairline">To (receives)</th>
+                  <th className="text-right px-3 py-2 font-semibold text-gray-600 border border-hairline">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {summary.settlement.map((t, i) => (
-                  <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                    <td className="px-3 py-2 font-medium text-red-700 border border-gray-200">{t.fromName}</td>
-                    <td className="px-3 py-2 font-medium text-green-700 border border-gray-200">{t.toName}</td>
-                    <td className="px-3 py-2 text-right font-bold text-gray-900 border border-gray-200">{formatMoney(t.amount)}</td>
+                  <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-surface-inset"}>
+                    <td className="px-3 py-2 font-medium text-rose-ink border border-hairline">{t.fromName}</td>
+                    <td className="px-3 py-2 font-medium text-green border border-hairline">{t.toName}</td>
+                    <td className="px-3 py-2 text-right font-bold text-gray-900 border border-hairline">{formatMoney(t.amount)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -218,7 +218,7 @@ export default async function BillPage({
         </section>
 
         {/* Footer */}
-        <div className="mt-10 pt-4 border-t border-gray-200 text-xs text-gray-400 text-center">
+        <div className="mt-10 pt-4 border-t border-hairline text-xs text-gray-400 text-center">
           {trip.name} · Generated on {generatedOn} · Trip Splitter
         </div>
 

@@ -6,17 +6,18 @@ import { requireTripAccess } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-const ICON: Record<string, string> = {
-  "trip.created": "🎉",
-  "trip.imported": "📥",
-  "expense.added": "➕",
-  "expense.updated": "✏️",
-  "expense.deleted": "🗑️",
-  "member.added": "🧑",
-  "member.removed": "🚶",
-  "family.added": "👨‍👩‍👧",
-  "family.removed": "👋",
-  "member.joined": "🤝",
+const ACTION_LABEL: Record<string, string> = {
+  "trip.created": "Trip",
+  "trip.imported": "Import",
+  "expense.added": "Expense",
+  "expense.updated": "Expense",
+  "expense.deleted": "Expense",
+  "member.added": "People",
+  "member.removed": "People",
+  "family.added": "People",
+  "family.removed": "People",
+  "member.joined": "Access",
+  "collaborator.added": "Access",
 };
 
 function timeAgo(d: Date): string {
@@ -44,49 +45,58 @@ export default async function ActivityPage({
   const entries = await getTripActivity(tripId);
 
   return (
-    <main className="pb-28">
-      <div className="bg-white px-4 pt-6 pb-4 border-b border-gray-100">
-        <Link href={`/trips/${tripId}`} className="text-sm text-indigo-600 font-medium">
+    <main className="px-6 pb-28">
+      <div className="pt-7">
+        <Link
+          href={`/trips/${tripId}`}
+          className="ts-textlink ts-textlink--rose inline-flex items-center gap-1.5"
+        >
           ← {trip.name}
         </Link>
-        <h1 className="mt-1 text-xl font-bold text-gray-900">Activity</h1>
-        <p className="text-sm text-gray-400">Full history of who did what</p>
+        <div className="ts-ledgerhead mt-5">
+          <p className="ts-eyebrow ts-eyebrow--accent">Activity</p>
+          {entries.length > 0 && <span className="ts-meta">{entries.length} entries</span>}
+        </div>
+        <h1 className="ts-h2 mt-3.5">
+          Who did <em>what</em>
+        </h1>
       </div>
 
-      <div className="px-4 pt-4">
-        {entries.length === 0 ? (
-          <div className="card p-8 text-center">
-            <p className="text-4xl mb-3">🕑</p>
-            <p className="font-semibold text-gray-800">No activity yet</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {entries.map((e) => {
-              const when = e.createdAt instanceof Date ? e.createdAt : new Date(e.createdAt as unknown as number);
-              return (
-                <div key={e.id} className="card p-3 flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-base flex-shrink-0">
-                    {ICON[e.action] ?? "•"}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-800">
-                      <span className="font-semibold">{e.actorName ?? "Someone"}</span>{" "}
-                      {e.summary}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {when.toLocaleString("en-IN", {
-                        day: "numeric", month: "short",
-                        hour: "numeric", minute: "2-digit",
-                      })}{" "}
-                      · {timeAgo(when)}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      {entries.length === 0 ? (
+        <div className="flex flex-col items-center px-4 py-16 text-center">
+          <p className="ts-eyebrow ts-eyebrow--accent">Quiet so far</p>
+          <p className="ts-h2 mt-3">No activity yet</p>
+        </div>
+      ) : (
+        <div className="pt-1">
+          {entries.map((e) => {
+            const when =
+              e.createdAt instanceof Date
+                ? e.createdAt
+                : new Date(e.createdAt as unknown as number);
+            return (
+              <div key={e.id} className="border-b border-hairline py-3.5">
+                <p className="text-[0.88rem] leading-relaxed tracking-[0.02em] text-ink">
+                  <span className="font-semibold">{e.actorName ?? "Someone"}</span>{" "}
+                  {e.summary}
+                </p>
+                <p className="ts-meta mt-1.5">
+                  {(ACTION_LABEL[e.action] ?? "•").toUpperCase()} ·{" "}
+                  {when
+                    .toLocaleString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })
+                    .toUpperCase()}{" "}
+                  · {timeAgo(when).toUpperCase()}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </main>
   );
 }
