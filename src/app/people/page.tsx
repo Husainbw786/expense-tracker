@@ -12,12 +12,13 @@ export default async function PeoplePage() {
   ]);
 
   return (
-    <main className="px-4 pt-6 pb-28">
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold text-gray-900">People</h1>
-        <p className="text-sm text-gray-400 mt-0.5">
-          {families.length} {families.length === 1 ? "family" : "families"} ·{" "}
-          {members.length} people
+    <main className="px-6 pb-28">
+      <div className="pt-8 pb-7">
+        <p className="ts-eyebrow ts-eyebrow--accent">Your roster</p>
+        <h1 className="ts-display mt-2">People</h1>
+        <p className="ts-micro mt-2">
+          {families.length} {families.length === 1 ? "family" : "families"} · {members.length}{" "}
+          people
         </p>
       </div>
       <PeopleList families={families} members={members} />

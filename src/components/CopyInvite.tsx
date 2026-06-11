@@ -18,11 +18,7 @@ export default function CopyInvite({ token, role }: { token: string; role: strin
   }
 
   return (
-    <button
-      type="button"
-      onClick={copy}
-      className="rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white"
-    >
+    <button type="button" onClick={copy} className="ts-textlink ts-textlink--rose">
       {copied ? "Copied ✓" : `Copy ${role} link`}
     </button>
   );

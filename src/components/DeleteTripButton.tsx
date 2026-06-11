@@ -6,12 +6,8 @@ import { deleteTrip } from "@/app/actions";
 function DeleteBtn() {
   const { pending } = useFormStatus();
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="w-full rounded-xl bg-rose-50 text-rose-600 text-xs font-semibold py-2 disabled:opacity-60"
-    >
-      {pending ? "Deleting…" : "🗑 Delete Trip"}
+    <button type="submit" disabled={pending} className="ts-textlink ts-textlink--danger">
+      {pending ? "Deleting…" : "Delete trip"}
     </button>
   );
 }

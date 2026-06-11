@@ -5,33 +5,69 @@ import { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
-function NavSpinner() {
+/* Thin line icons — 24×24, stroke 1.5, Heroicons-outline style */
+function I({ d, className }: { d: string | string[]; className?: string }) {
   return (
-    <span className="w-5 h-5 rounded-full border-2 border-indigo-200 border-t-indigo-600 animate-spin" />
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className ?? "h-[19px] w-[19px]"}
+    >
+      {(Array.isArray(d) ? d : [d]).map((p, i) => (
+        <path key={i} d={p}></path>
+      ))}
+    </svg>
   );
 }
 
-// Inner content of a nav tab — shows a spinner over the icon while the
-// tapped link's navigation is pending (useLinkStatus must run inside <Link>).
+const PATHS = {
+  trips:
+    "M20 7h-3V5.5A2.5 2.5 0 0 0 14.5 3h-5A2.5 2.5 0 0 0 7 5.5V7H4a1.5 1.5 0 0 0-1.5 1.5v10A1.5 1.5 0 0 0 4 20h16a1.5 1.5 0 0 0 1.5-1.5v-10A1.5 1.5 0 0 0 20 7zM9 7V5.5A.5.5 0 0 1 9.5 5h5a.5.5 0 0 1 .5.5V7H9z",
+  people: [
+    "M15 19.13v-1.5a3.38 3.38 0 0 0-3.38-3.38H5.63a3.38 3.38 0 0 0-3.38 3.38v1.5",
+    "M8.63 11.25a3.38 3.38 0 1 0 0-6.75 3.38 3.38 0 0 0 0 6.75z",
+    "M21.75 19.13v-1.5a3.38 3.38 0 0 0-2.53-3.27",
+    "M15.84 4.61a3.38 3.38 0 0 1 0 6.54",
+  ],
+  summary: ["M3 20h18", "M6.5 20v-7", "M12 20V9", "M17.5 20V4.5"],
+  expenses: [
+    "M6 3.5h12a1 1 0 0 1 1 1V21l-2.4-1.5L14.4 21 12 19.5 9.6 21l-2.2-1.5L5 21V4.5a1 1 0 0 1 1-1z",
+    "M9 8.5h6",
+    "M9 12h6",
+  ],
+  add: ["M12 5v14", "M5 12h14"],
+};
+
+function NavSpinner() {
+  return (
+    <span className="h-[19px] w-[19px] animate-spin rounded-full border-[1.5px] border-rose-border border-t-rose" />
+  );
+}
+
 function TabInner({
   icon,
   label,
   active,
-  underlineClass,
 }: {
   icon: ReactNode;
   label: string;
   active: boolean;
-  underlineClass: string;
 }) {
   const { pending } = useLinkStatus();
   return (
     <>
-      {active && (
-        <span className={`absolute top-0 h-0.5 bg-indigo-600 rounded-b-full ${underlineClass}`} />
-      )}
       {pending ? <NavSpinner /> : icon}
-      {label}
+      <span
+        className={`text-[0.66rem] uppercase tracking-[0.16em] ${
+          active ? "font-semibold" : "font-normal"
+        }`}
+      >
+        {label}
+      </span>
     </>
   );
 }
@@ -40,48 +76,24 @@ function AddInner() {
   const { pending } = useLinkStatus();
   return (
     <>
-      <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-600 shadow-md shadow-indigo-200">
+      <span className="-mt-px flex h-[21px] w-[21px] items-center justify-center bg-rose text-white transition-colors group-hover:bg-rose-hover">
         {pending ? (
-          <span className="h-5 w-5 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+          <span className="h-3 w-3 animate-spin rounded-full border-[1.5px] border-white/40 border-t-white" />
         ) : (
-          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-          </svg>
+          <I d={PATHS.add} className="h-[15px] w-[15px]" />
         )}
       </span>
-      <span className="text-[10px] font-semibold text-indigo-600">Add</span>
+      <span className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-rose">
+        Add
+      </span>
     </>
   );
 }
 
-function IconTrips({ active }: { active: boolean }) {
-  return (
-    <svg className={`w-5 h-5 ${active ? "text-indigo-600" : "text-gray-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.2 : 1.8} d="M3 12l9-9 9 9M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9" />
-    </svg>
-  );
-}
-function IconPeople({ active }: { active: boolean }) {
-  return (
-    <svg className={`w-5 h-5 ${active ? "text-indigo-600" : "text-gray-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.2 : 1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-  );
-}
-function IconSummary({ active }: { active: boolean }) {
-  return (
-    <svg className={`w-5 h-5 ${active ? "text-indigo-600" : "text-gray-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.2 : 1.8} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-    </svg>
-  );
-}
-function IconExpenses({ active }: { active: boolean }) {
-  return (
-    <svg className={`w-5 h-5 ${active ? "text-indigo-600" : "text-gray-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.2 : 1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-    </svg>
-  );
-}
+const tabClass = (active: boolean) =>
+  `relative flex min-h-14 flex-1 flex-col items-center gap-1.5 py-3 transition-colors ${
+    active ? "text-rose" : "text-ink-2 hover:text-ink"
+  }`;
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -90,36 +102,26 @@ export default function BottomNav() {
 
   if (tripId) {
     const base = `/trips/${tripId}`;
+    const expensesActive =
+      pathname.startsWith(`${base}/expenses`) && pathname !== `${base}/expenses/new`;
     const tabs = [
-      { href: base, label: "Summary", active: pathname === base, icon: <IconSummary active={pathname === base} /> },
-      {
-        href: `${base}/expenses`,
-        label: "Expenses",
-        active: pathname.startsWith(`${base}/expenses`) && pathname !== `${base}/expenses/new`,
-        icon: <IconExpenses active={pathname.startsWith(`${base}/expenses`) && pathname !== `${base}/expenses/new`} />,
-      },
-      { href: `${base}/members`, label: "On Trip", active: pathname === `${base}/members`, icon: <IconPeople active={pathname === `${base}/members`} /> },
-      { href: "/", label: "All Trips", active: false, icon: <IconTrips active={false} /> },
+      { href: base, label: "Summary", active: pathname === base, icon: <I d={PATHS.summary} /> },
+      { href: `${base}/expenses`, label: "Expenses", active: expensesActive, icon: <I d={PATHS.expenses} /> },
+      { href: `${base}/members`, label: "On Trip", active: pathname === `${base}/members`, icon: <I d={PATHS.people} /> },
+      { href: "/", label: "Trips", active: false, icon: <I d={PATHS.trips} /> },
     ];
 
     return (
-      <nav className="fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 bg-white border-t border-gray-200">
-        <div className="flex items-center">
+      <nav className="fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 border-t border-hairline bg-[rgba(254,253,251,0.94)] backdrop-blur-xl">
+        <div className="flex items-stretch">
           {tabs.map((t) => (
-            <Link
-              key={t.href}
-              href={t.href}
-              className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors relative ${
-                t.active ? "text-indigo-600" : "text-gray-400"
-              }`}
-            >
-              <TabInner icon={t.icon} label={t.label} active={t.active} underlineClass="left-3 right-3" />
+            <Link key={t.href} href={t.href} className={tabClass(t.active)}>
+              <TabInner icon={t.icon} label={t.label} active={t.active} />
             </Link>
           ))}
-          {/* Add button in center */}
           <Link
             href={`${base}/expenses/new`}
-            className="flex flex-col items-center gap-1 py-2 px-4"
+            className="group flex flex-1 flex-col items-center gap-1.5 py-3"
           >
             <AddInner />
           </Link>
@@ -129,22 +131,16 @@ export default function BottomNav() {
   }
 
   const homeTabs = [
-    { href: "/", label: "Trips", active: pathname === "/", icon: <IconTrips active={pathname === "/"} /> },
-    { href: "/people", label: "People", active: pathname.startsWith("/people"), icon: <IconPeople active={pathname.startsWith("/people")} /> },
+    { href: "/", label: "Trips", active: pathname === "/", icon: <I d={PATHS.trips} /> },
+    { href: "/people", label: "People", active: pathname.startsWith("/people"), icon: <I d={PATHS.people} /> },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 bg-white border-t border-gray-200">
-      <div className="flex">
+    <nav className="fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 border-t border-hairline bg-[rgba(254,253,251,0.94)] backdrop-blur-xl">
+      <div className="flex items-stretch">
         {homeTabs.map((t) => (
-          <Link
-            key={t.href}
-            href={t.href}
-            className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors relative ${
-              t.active ? "text-indigo-600" : "text-gray-400"
-            }`}
-          >
-            <TabInner icon={t.icon} label={t.label} active={t.active} underlineClass="left-8 right-8" />
+          <Link key={t.href} href={t.href} className={tabClass(t.active)}>
+            <TabInner icon={t.icon} label={t.label} active={t.active} />
           </Link>
         ))}
       </div>

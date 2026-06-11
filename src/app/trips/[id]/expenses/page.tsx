@@ -8,16 +8,14 @@ import { requireTripAccess, canWrite } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-const CATEGORY_STYLES: Record<string, { dot: string; chip: string; label: string }> = {
-  Travel:   { dot: "bg-blue-400",   chip: "bg-blue-50 text-blue-600",     label: "Travel" },
-  Train:    { dot: "bg-indigo-400", chip: "bg-indigo-50 text-indigo-600", label: "Train" },
-  Rickshaw: { dot: "bg-yellow-400", chip: "bg-yellow-50 text-yellow-600", label: "Rickshaw" },
-  Hotel:    { dot: "bg-orange-400", chip: "bg-orange-50 text-orange-600", label: "Hotel" },
-  Food:     { dot: "bg-green-400",  chip: "bg-green-50 text-green-600",   label: "Food" },
-  Tickets:  { dot: "bg-purple-400", chip: "bg-purple-50 text-purple-600", label: "Tickets" },
-  Shopping: { dot: "bg-pink-400",   chip: "bg-pink-50 text-pink-600",     label: "Shopping" },
-  Other:    { dot: "bg-gray-400",   chip: "bg-gray-100 text-gray-500",    label: "Other" },
-};
+function fmtDateLong(iso: string | null) {
+  if (!iso) return null;
+  const d = new Date(iso + "T00:00:00");
+  if (isNaN(d.getTime())) return iso;
+  return d
+    .toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })
+    .toUpperCase();
+}
 
 export default async function TripExpensesPage({
   params,
@@ -33,79 +31,101 @@ export default async function TripExpensesPage({
   const expenses = await getTripExpensesWithDetails(tripId);
   const total = expenses.reduce((a, e) => a + e.amount, 0);
 
+  // group by day (undated entries last)
+  const groups: { date: string | null; items: typeof expenses }[] = [];
+  const sorted = [...expenses].sort((a, b) =>
+    (a.spentOn ?? "9999") < (b.spentOn ?? "9999") ? -1 : 1
+  );
+  for (const e of sorted) {
+    const g = groups[groups.length - 1];
+    if (g && g.date === (e.spentOn ?? null)) g.items.push(e);
+    else groups.push({ date: e.spentOn ?? null, items: [e] });
+  }
+
   return (
-    <main className="pb-28">
+    <main className="px-6 pb-28">
       {/* Header */}
-      <div className="bg-white px-4 pt-6 pb-4 border-b border-gray-100">
-        <Link href={`/trips/${tripId}`} className="text-sm text-indigo-600 font-medium">
+      <div className="pt-7">
+        <Link
+          href={`/trips/${tripId}`}
+          className="ts-textlink ts-textlink--rose inline-flex items-center gap-1.5"
+        >
           ← {trip.name}
         </Link>
-        <div className="flex items-center justify-between mt-1">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">Expenses</h1>
-            {expenses.length > 0 && (
-              <p className="text-sm text-gray-400">
-                {expenses.length} expenses · {formatMoney(total)}
-              </p>
-            )}
-          </div>
+        <div className="ts-ledgerhead mt-5">
+          <p className="ts-eyebrow ts-eyebrow--accent">Ledger</p>
+          {expenses.length > 0 && (
+            <span className="ts-meta">
+              {expenses.length} entries · {formatMoney(total)}
+            </span>
+          )}
         </div>
+        <h1 className="ts-h2 mt-3.5">
+          Every <em>expense</em>
+        </h1>
       </div>
 
-      <div className="px-4 pt-4">
-        {expenses.length === 0 ? (
-          <div className="card p-8 text-center">
-            <p className="text-4xl mb-3">🧾</p>
-            <p className="font-semibold text-gray-800">No expenses yet</p>
-            <p className="text-sm text-gray-400 mt-1">Tap + Add to log your first one.</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {expenses.map((e) => {
-              const cat = CATEGORY_STYLES[e.category] ?? CATEGORY_STYLES.Other;
-              return (
-                <div key={e.id} className="card p-4">
-                  <div className="flex items-start gap-3">
-                    <div className={`w-2 h-2 rounded-full ${cat.dot} mt-2 flex-shrink-0`} />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 text-sm">{e.description}</p>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <span className={`chip ${cat.chip} text-xs`}>{e.category}</span>
-                        <span className="text-xs text-gray-400">
-                          {e.payerName} · {e.participantCount} people
-                          {e.spentOn ? ` · ${e.spentOn}` : ""}
+      {expenses.length === 0 ? (
+        <div className="flex flex-col items-center px-4 py-16 text-center">
+          <p className="ts-eyebrow ts-eyebrow--accent">Empty ledger</p>
+          <p className="ts-h2 mt-3">No expenses yet</p>
+          <p className="ts-micro mt-2">Tap Add to log your first one.</p>
+        </div>
+      ) : (
+        <div className="pt-1">
+          {groups.map((g, gi) => (
+            <div key={gi}>
+              <p className="ts-eyebrow pt-5 pb-2">{fmtDateLong(g.date) ?? "UNDATED"}</p>
+              <div>
+                {g.items.map((e) => (
+                  <details key={e.id} className="group">
+                    <summary className="ts-row cursor-pointer list-none group-open:border-b-transparent group-open:bg-surface-accent [&::-webkit-details-marker]:hidden">
+                      <span className="flex min-w-0 flex-1 flex-col gap-1">
+                        <span className="text-[0.92rem] tracking-[0.03em] text-ink">
+                          {e.description}
                         </span>
-                      </div>
+                        <span className="ts-meta">
+                          {e.category.toUpperCase()} · PAID BY {e.payerName.toUpperCase()} ·{" "}
+                          {e.participantCount} {e.participantCount === 1 ? "PERSON" : "PEOPLE"}
+                        </span>
+                      </span>
+                      <span className="ts-money shrink-0 text-[1.08rem]">
+                        {formatMoney(e.amount)}
+                      </span>
+                    </summary>
+                    <div className="border-b border-hairline pb-4">
+                      <p className="ts-micro text-[0.76rem]">
+                        {formatMoney(e.amount / Math.max(1, e.participantCount))} each across{" "}
+                        {e.participantCount} {e.participantCount === 1 ? "person" : "people"}.
+                      </p>
+                      {writable && (
+                        <div className="flex items-center gap-3 pt-3">
+                          <Link
+                            href={`/trips/${tripId}/expenses/${e.id}/edit`}
+                            className="ts-textlink"
+                          >
+                            Edit
+                          </Link>
+                          <span className="text-border-strong">·</span>
+                          <form action={deleteExpense}>
+                            <input type="hidden" name="id" value={e.id} />
+                            <SubmitLink
+                              loadingText="Deleting…"
+                              className="ts-textlink ts-textlink--danger"
+                            >
+                              Delete
+                            </SubmitLink>
+                          </form>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="font-bold text-gray-900 text-sm">{formatMoney(e.amount)}</p>
-                    </div>
-                  </div>
-                  {writable && (
-                    <div className="flex gap-2 mt-3 pt-3 border-t border-gray-50">
-                      <Link
-                        href={`/trips/${tripId}/expenses/${e.id}/edit`}
-                        className="flex-1 text-center rounded-xl bg-indigo-50 text-indigo-600 font-semibold text-sm py-2"
-                      >
-                        Edit
-                      </Link>
-                      <form action={deleteExpense} className="flex-1">
-                        <input type="hidden" name="id" value={e.id} />
-                        <SubmitLink
-                          loadingText="Deleting…"
-                          className="w-full rounded-xl bg-rose-50 text-rose-600 font-semibold text-sm py-2 block text-center disabled:opacity-60"
-                        >
-                          Delete
-                        </SubmitLink>
-                      </form>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                  </details>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </main>
   );
 }
