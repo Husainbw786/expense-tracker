@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 
 function Spinner() {
   return (
@@ -11,19 +11,6 @@ function Spinner() {
   );
 }
 
-/**
- * Why requestAnimationFrame?
- *
- * React 18 flushes state updates from DOM event handlers synchronously —
- * before the browser runs its default action (form submission). If we call
- * setLoading(true) directly in onClick the button is marked disabled and
- * re-rendered BEFORE the browser submits the form, which silently blocks it.
- *
- * requestAnimationFrame defers the visual update to the next paint frame, so
- * the form submission fires first, then the spinner appears.
- *
- * A ref (submittingRef) blocks any double-clicks during that one-frame gap.
- */
 export function SubmitButton({
   children,
   loadingText,
@@ -35,32 +22,10 @@ export function SubmitButton({
   className?: string;
   disabled?: boolean;
 }) {
-  const [loading, setLoading] = useState(false);
-  const submittingRef = useRef(false);
-
-  function handleClick(e: React.MouseEvent<HTMLButtonElement>) {
-    // Block double-clicks
-    if (submittingRef.current) {
-      e.preventDefault();
-      return;
-    }
-    // Don't show loader if the form is invalid (browser will show validation errors)
-    const form = e.currentTarget.closest("form");
-    if (form && !form.checkValidity()) return;
-
-    submittingRef.current = true;
-    // Defer so the form submits before React re-renders the button as disabled
-    requestAnimationFrame(() => setLoading(true));
-  }
-
+  const { pending } = useFormStatus();
   return (
-    <button
-      type="submit"
-      disabled={loading || disabled}
-      className={className}
-      onClick={handleClick}
-    >
-      {loading ? (
+    <button type="submit" disabled={pending || disabled} className={className}>
+      {pending ? (
         <span className="flex items-center justify-center gap-2">
           <Spinner />
           {loadingText ?? "Please wait…"}
@@ -72,7 +37,6 @@ export function SubmitButton({
   );
 }
 
-// Compact link-style variant (Delete / Remove buttons)
 export function SubmitLink({
   children,
   loadingText = "…",
@@ -82,26 +46,10 @@ export function SubmitLink({
   loadingText?: string;
   className?: string;
 }) {
-  const [loading, setLoading] = useState(false);
-  const submittingRef = useRef(false);
-
-  function handleClick(e: React.MouseEvent<HTMLButtonElement>) {
-    if (submittingRef.current) {
-      e.preventDefault();
-      return;
-    }
-    submittingRef.current = true;
-    requestAnimationFrame(() => setLoading(true));
-  }
-
+  const { pending } = useFormStatus();
   return (
-    <button
-      type="submit"
-      disabled={loading}
-      className={className}
-      onClick={handleClick}
-    >
-      {loading ? (
+    <button type="submit" disabled={pending} className={className}>
+      {pending ? (
         <span className="flex items-center gap-1">
           <Spinner />
           {loadingText}
