@@ -1,48 +1,49 @@
 @import "tailwindcss";
 
 /* ============================================================
-   Trip Splitter — editorial design system (Cloud Nails & Psychic)
-   Warm off-white canvas, warm ink scale, dusty-rose accent,
-   serif display + amounts, tracked uppercase micro-labels,
-   square corners, hairline borders.
+   Trip Splitter — warm canvas design system
+   Cream app surface, terracotta accent, Spectral display +
+   Hanken Grotesk UI, soft rounded cards, hairline borders.
    ============================================================ */
 
 :root {
   /* canvas + surfaces */
-  --background: #FEFDFB;
-  --foreground: #1A1714;
-  --surface-card: #FFFFFF;
-  --surface-inset: #F8F5F2;
-  --surface-accent: #FBF0F3;
+  --page-bg: #E7E4DA;          /* behind the app column */
+  --background: #F4F2EA;       /* the app surface */
+  --foreground: #23221E;
+  --surface-card: #FCFBF6;
+  --surface-inset: #F4F2EA;    /* input fills */
+  --surface-accent: #F3E6DC;   /* terracotta soft */
+  --track: #EEEADD;
 
   /* ink scale (warm) */
-  --ink: #1A1714;
-  --ink-2: #6A635C;
-  --ink-3: #A8A09A;
+  --ink: #23221E;
+  --ink-2: #74726A;            /* muted */
+  --ink-3: #9D9B90;            /* faint */
 
-  /* rose accent */
-  --rose: #B85C72;
-  --rose-hover: #A04E63;
-  --rose-light: #C4697F;
-  --rose-ink: #7A3348;
-  --rose-border: #EDD0D8;
+  /* terracotta accent (mapped onto the old "rose" names) */
+  --rose: #C5663F;
+  --rose-hover: #B0542F;
+  --rose-light: #D98A6A;
+  --rose-ink: #AD523B;         /* negative / owes */
+  --rose-border: #ECDBCE;
 
-  /* green (gets money / success) */
-  --green: #3A7D52;
-  --green-bg: #EDF6F1;
+  /* green (gets money / positive) */
+  --green: #4E7355;
+  --green-bg: #E5EBDF;
 
   /* borders */
-  --hairline: #EAE5DF;
-  --border-strong: #D8D2CB;
+  --hairline: #E7E3D6;
+  --border-strong: #D8D2C4;
 
   /* type families (variables injected by next/font in layout.tsx) */
-  --font-serif: var(--font-libre), Georgia, serif;
-  --font-sans-ui: var(--font-josefin), "Helvetica Neue", Arial, sans-serif;
-  --font-script: var(--font-sacramento), cursive;
+  --font-serif: var(--font-spectral), Georgia, serif;
+  --font-sans-ui: var(--font-hanken), system-ui, -apple-system, sans-serif;
 
-  /* tracking scale — the brand signature */
-  --tracking-label: 0.16em;
-  --tracking-eyebrow: 0.24em;
+  /* radii */
+  --r-card: 15px;
+  --r-lg: 18px;
+  --r-input: 11px;
 }
 
 @theme inline {
@@ -56,8 +57,10 @@
   --color-rose-ink: var(--rose-ink);
   --color-rose-border: var(--rose-border);
   --color-green: var(--green);
+  --color-green-bg: var(--green-bg);
   --color-hairline: var(--hairline);
   --color-border-strong: var(--border-strong);
+  --color-surface-card: var(--surface-card);
   --color-surface-inset: var(--surface-inset);
   --color-surface-accent: var(--surface-accent);
   --font-sans: var(--font-sans-ui);
@@ -69,25 +72,36 @@ html {
 }
 
 body {
-  background: var(--surface-inset);
+  background: var(--page-bg);
   color: var(--foreground);
   font-family: var(--font-sans-ui);
+  -webkit-tap-highlight-color: transparent;
+}
+
+input { font-family: inherit; }
+input::placeholder { color: var(--ink-3); }
+
+@keyframes ts-sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 @layer components {
   /* ---- app column (used in layout.tsx) ---- */
   .ts-app-col {
+    position: relative;
     background: var(--background);
-    border-left: 1px solid var(--hairline);
-    border-right: 1px solid var(--hairline);
     min-height: 100dvh;
+    box-shadow: 0 30px 80px -32px rgba(35, 34, 30, 0.28);
   }
 
   /* ---- top bar wordmark ---- */
   .ts-wordmark {
-    font-family: var(--font-script);
-    font-size: 1.55rem;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 1.2rem;
     line-height: 1;
+    letter-spacing: -0.01em;
     color: var(--ink);
     white-space: nowrap;
   }
@@ -95,142 +109,196 @@ body {
   /* ---- typography roles ---- */
   .ts-eyebrow {
     font-family: var(--font-sans-ui);
-    font-size: 0.68rem;
+    font-size: 0.84rem;
     font-weight: 600;
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
+    letter-spacing: 0;
+    text-transform: none;
     color: var(--ink-2);
   }
   .ts-eyebrow--accent { color: var(--rose); }
+
   .ts-display {
     font-family: var(--font-serif);
-    font-weight: 400;
-    font-size: 1.9rem;
-    line-height: 1.15;
+    font-weight: 600;
+    font-size: 2.05rem;
+    line-height: 1.1;
     color: var(--ink);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
     text-wrap: pretty;
   }
-  .ts-display em, .ts-h2 em { font-style: italic; color: var(--rose); }
+  .ts-display em, .ts-h2 em {
+    font-style: normal;
+    color: inherit;
+  }
   .ts-h2 {
     font-family: var(--font-serif);
-    font-weight: 400;
-    font-size: 1.32rem;
-    line-height: 1.25;
+    font-weight: 600;
+    font-size: 1.45rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
     color: var(--ink);
   }
   .ts-micro {
     font-family: var(--font-sans-ui);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
     color: var(--ink-2);
-    letter-spacing: 0.04em;
+    letter-spacing: 0;
   }
   .ts-meta {
     font-family: var(--font-sans-ui);
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
     color: var(--ink-2);
     font-variant-numeric: tabular-nums;
   }
   .ts-money {
     font-family: var(--font-serif);
-    font-weight: 400;
+    font-weight: 600;
     color: var(--ink);
     white-space: nowrap;
+    letter-spacing: -0.01em;
     font-variant-numeric: lining-nums tabular-nums;
   }
 
-  /* ---- text links (quiet uppercase actions) ---- */
+  /* ---- text links (quiet actions) ---- */
   .ts-textlink {
     font-family: var(--font-sans-ui);
-    font-size: 0.66rem;
+    font-size: 0.84rem;
     font-weight: 600;
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    color: var(--ink-2);
-    transition: color 0.18s cubic-bezier(0.32, 0, 0.2, 1);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--rose);
+    transition: color 0.18s ease;
     cursor: pointer;
   }
-  .ts-textlink:hover { color: var(--rose); }
+  .ts-textlink:hover { color: var(--rose-hover); }
   .ts-textlink--rose { color: var(--rose); }
   .ts-textlink--rose:hover { color: var(--rose-hover); }
-  .ts-textlink--danger { color: var(--rose-ink); opacity: 0.75; }
+  .ts-textlink--danger { color: var(--rose-ink); opacity: 0.85; }
   .ts-textlink--danger:hover { opacity: 1; color: var(--rose-ink); }
 
-  /* ---- section heading rule ---- */
+  /* ---- section heading row ---- */
   .ts-ledgerhead {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
-    padding-bottom: 0.55rem;
-    border-bottom: 1px solid var(--ink);
+    margin-bottom: 0.8rem;
   }
+  .ts-ledgerhead .ts-eyebrow {
+    font-size: 0.94rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .ts-ledgerhead .ts-eyebrow--accent { color: var(--ink); }
 
-  /* ---- ledger rows ---- */
+  /* ---- list rows rendered as soft cards ---- */
   .ts-row {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px 1rem;
-    margin: 0 -1rem;
-    border-bottom: 1px solid var(--hairline);
-    transition: background 0.18s cubic-bezier(0.32, 0, 0.2, 1);
+    gap: 13px;
+    padding: 15px 16px;
+    margin-bottom: 11px;
+    background: var(--surface-card);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-card);
+    transition: border-color 0.18s ease, background 0.18s ease;
   }
-  .ts-row:hover { background: var(--surface-accent); }
+  .ts-row:hover { border-color: var(--rose-light); }
 
   /* ---- chips (on-trip / participants) ---- */
   .ts-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 7px;
   }
   .ts-chip {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     cursor: pointer;
-    background: var(--surface-card);
-    border: 1px solid var(--border-strong);
-    border-radius: 0;
-    padding: 8px 13px;
+    background: var(--background);
+    border: 1px solid var(--hairline);
+    border-radius: 20px;
+    padding: 7px 12px;
     font-family: var(--font-sans-ui);
-    font-size: 0.85rem;
-    font-weight: 300;
-    color: var(--ink);
-    letter-spacing: 0.04em;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink-2);
+    letter-spacing: 0;
     transition: background 0.18s, border-color 0.18s, color 0.18s;
   }
   .ts-chip:hover { border-color: var(--rose-light); }
   .ts-chip.is-on {
     background: var(--surface-accent);
-    border-color: var(--rose);
-    color: var(--rose-ink);
+    border-color: transparent;
+    color: var(--rose);
+    font-weight: 600;
   }
-  .ts-chip__mark { font-size: 0.7em; color: var(--ink-3); }
+  .ts-chip__mark { font-size: 0.9em; color: var(--ink-3); }
   .ts-chip.is-on .ts-chip__mark { color: var(--rose); }
+
+  /* ---- segmented tabs ---- */
+  .ts-tabs {
+    display: flex;
+    gap: 4px;
+    background: #E9E6DB;
+    padding: 4px;
+    border-radius: 12px;
+  }
+  .ts-tab {
+    flex: 1;
+    text-align: center;
+    border: none;
+    border-radius: 9px;
+    padding: 9px 0;
+    font-family: var(--font-sans-ui);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: var(--ink-2);
+    transition: background 0.18s, color 0.18s;
+  }
+  .ts-tab.is-active {
+    background: var(--surface-card);
+    color: var(--rose);
+    box-shadow: 0 1px 2px rgba(35, 34, 30, 0.08);
+  }
+
+  /* ---- stat tiles ---- */
+  .ts-stat {
+    background: var(--surface-card);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: 14px 15px;
+  }
 
   /* ---- charts ---- */
   .ts-track {
-    height: 10px;
-    background: var(--surface-inset);
-    border: 1px solid var(--hairline);
+    height: 7px;
+    border-radius: 5px;
+    background: var(--track);
+    overflow: hidden;
   }
-  .ts-fill { height: 100%; background: var(--rose); }
+  .ts-fill {
+    height: 100%;
+    background: var(--rose);
+    border-radius: 5px;
+  }
 
-  /* ============================================================
-     LEGACY CLASS NAMES — kept so not-yet-rewritten screens
-     (members, expense form, activity, collaborators, auth)
-     pick up the editorial look without code changes.
-     ============================================================ */
+  /* ---- inputs / cards / buttons ---- */
   .input {
     width: 100%;
-    border-radius: 0;
+    border-radius: var(--r-input);
     border: 1px solid var(--hairline);
-    background: var(--surface-inset);
-    padding: 0.7rem 0.85rem;
-    font-size: 0.9rem;
+    background: var(--background);
+    padding: 0.82rem 0.9rem;
+    font-size: 0.94rem;
+    font-weight: 500;
     font-family: var(--font-sans-ui);
     color: var(--ink);
     outline: none;
@@ -241,88 +309,87 @@ body {
 
   .card {
     background: var(--surface-card);
-    border-radius: 0;
+    border-radius: var(--r-lg);
     border: 1px solid var(--hairline);
     box-shadow: none;
   }
 
   .section-label {
     font-family: var(--font-sans-ui);
-    font-size: 0.68rem;
+    font-size: 0.84rem;
     font-weight: 600;
-    color: var(--rose);
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-    padding: 0 0.25rem;
+    color: var(--ink);
+    letter-spacing: 0;
+    text-transform: none;
+    margin-bottom: 0.7rem;
   }
 
   .chip {
     display: inline-flex;
     align-items: center;
-    padding: 0.2rem 0.55rem;
-    border-radius: 0;
+    padding: 0.32rem 0.7rem;
+    border-radius: 20px;
     border: 1px solid var(--hairline);
-    background: var(--surface-inset);
+    background: var(--background);
     color: var(--ink-2);
-    font-size: 0.66rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
   }
 
   .avatar-circle {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0; /* square — editorial */
-    font-weight: 600;
-    font-size: 0.8rem;
-    letter-spacing: 0.04em;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0;
     flex-shrink: 0;
-    background: var(--surface-inset);
-    color: var(--ink-2);
-    border: 1px solid var(--hairline);
+    background: var(--surface-accent);
+    color: var(--rose);
+    border: none;
   }
 
-  /* primary action (square, uppercase, tracked) */
+  /* primary action — terracotta pill */
   .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
+    gap: 8px;
     background: var(--rose);
     color: #fff;
-    border-radius: 0;
-    padding: 12px 24px;
+    border-radius: var(--r-input);
+    padding: 14px 22px;
     font-family: var(--font-sans-ui);
-    font-size: 0.7rem;
+    font-size: 0.94rem;
     font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    letter-spacing: 0;
+    text-transform: none;
     transition: background 0.18s;
     cursor: pointer;
   }
   .btn-primary:hover { background: var(--rose-hover); }
-  .btn-primary:disabled { background: var(--border-strong); color: var(--ink-3); cursor: default; }
+  .btn-primary:disabled { background: var(--border-strong); color: #fff; cursor: default; opacity: 0.7; }
 
   .btn-ghost {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    background: transparent;
+    gap: 8px;
+    background: var(--surface-card);
     color: var(--ink);
-    border: 1px solid var(--border-strong);
-    border-radius: 0;
-    padding: 11px 22px;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-input);
+    padding: 13px 20px;
     font-family: var(--font-sans-ui);
-    font-size: 0.7rem;
-    font-weight: 400;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    transition: border-color 0.18s;
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    transition: border-color 0.18s, background 0.18s;
     cursor: pointer;
   }
-  .btn-ghost:hover { border-color: var(--ink); }
+  .btn-ghost:hover { border-color: var(--rose-light); }
 }

@@ -5,17 +5,17 @@ import { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
-/* Thin line icons — 24×24, stroke 1.5, Heroicons-outline style */
+/* Line icons — 24×24, stroke 1.9 */
 function I({ d, className }: { d: string | string[]; className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.5}
+      strokeWidth={1.9}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={className ?? "h-[19px] w-[19px]"}
+      className={className ?? "h-[22px] w-[22px]"}
     >
       {(Array.isArray(d) ? d : [d]).map((p, i) => (
         <path key={i} d={p}></path>
@@ -25,26 +25,22 @@ function I({ d, className }: { d: string | string[]; className?: string }) {
 }
 
 const PATHS = {
-  trips:
-    "M20 7h-3V5.5A2.5 2.5 0 0 0 14.5 3h-5A2.5 2.5 0 0 0 7 5.5V7H4a1.5 1.5 0 0 0-1.5 1.5v10A1.5 1.5 0 0 0 4 20h16a1.5 1.5 0 0 0 1.5-1.5v-10A1.5 1.5 0 0 0 20 7zM9 7V5.5A.5.5 0 0 1 9.5 5h5a.5.5 0 0 1 .5.5V7H9z",
-  people: [
-    "M15 19.13v-1.5a3.38 3.38 0 0 0-3.38-3.38H5.63a3.38 3.38 0 0 0-3.38 3.38v1.5",
-    "M8.63 11.25a3.38 3.38 0 1 0 0-6.75 3.38 3.38 0 0 0 0 6.75z",
-    "M21.75 19.13v-1.5a3.38 3.38 0 0 0-2.53-3.27",
-    "M15.84 4.61a3.38 3.38 0 0 1 0 6.54",
+  trips: [
+    "M2 7h20v14a0 0 0 0 1 0 0H2a0 0 0 0 1 0 0V7z",
+    "M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2",
   ],
-  summary: ["M3 20h18", "M6.5 20v-7", "M12 20V9", "M17.5 20V4.5"],
-  expenses: [
-    "M6 3.5h12a1 1 0 0 1 1 1V21l-2.4-1.5L14.4 21 12 19.5 9.6 21l-2.2-1.5L5 21V4.5a1 1 0 0 1 1-1z",
-    "M9 8.5h6",
-    "M9 12h6",
+  people: [
+    "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2",
+    "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+    "M22 21v-2a4 4 0 0 0-3-3.87",
+    "M16 3.13a4 4 0 0 1 0 7.75",
   ],
   add: ["M12 5v14", "M5 12h14"],
 };
 
 function NavSpinner() {
   return (
-    <span className="h-[19px] w-[19px] animate-spin rounded-full border-[1.5px] border-rose-border border-t-rose" />
+    <span className="h-[22px] w-[22px] animate-spin rounded-full border-[2px] border-rose-border border-t-rose" />
   );
 }
 
@@ -62,9 +58,7 @@ function TabInner({
     <>
       {pending ? <NavSpinner /> : icon}
       <span
-        className={`text-[0.66rem] uppercase tracking-[0.16em] ${
-          active ? "font-semibold" : "font-normal"
-        }`}
+        className={`text-[0.66rem] font-semibold ${active ? "text-rose" : "text-ink-3"}`}
       >
         {label}
       </span>
@@ -76,73 +70,59 @@ function AddInner() {
   const { pending } = useLinkStatus();
   return (
     <>
-      <span className="-mt-px flex h-[21px] w-[21px] items-center justify-center bg-rose text-white transition-colors group-hover:bg-rose-hover">
+      <span
+        className="grid h-[52px] w-[52px] place-items-center rounded-2xl bg-rose"
+        style={{ boxShadow: "0 10px 22px -8px rgba(197,102,63,.6)" }}
+      >
         {pending ? (
-          <span className="h-3 w-3 animate-spin rounded-full border-[1.5px] border-white/40 border-t-white" />
+          <span className="h-5 w-5 animate-spin rounded-full border-[2px] border-white/40 border-t-white" />
         ) : (
-          <I d={PATHS.add} className="h-[15px] w-[15px]" />
+          <I d={PATHS.add} className="h-[26px] w-[26px] text-white" />
         )}
       </span>
-      <span className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-rose">
-        Add
-      </span>
+      <span className="text-[0.66rem] font-semibold text-rose">Add</span>
     </>
   );
 }
-
-const tabClass = (active: boolean) =>
-  `relative flex min-h-14 flex-1 flex-col items-center gap-1.5 py-3 transition-colors ${
-    active ? "text-rose" : "text-ink-2 hover:text-ink"
-  }`;
 
 export default function BottomNav() {
   const pathname = usePathname();
   const tripMatch = pathname.match(/^\/trips\/(\d+)/);
   const tripId = tripMatch?.[1];
 
-  if (tripId) {
-    const base = `/trips/${tripId}`;
-    const expensesActive =
-      pathname.startsWith(`${base}/expenses`) && pathname !== `${base}/expenses/new`;
-    const tabs = [
-      { href: base, label: "Summary", active: pathname === base, icon: <I d={PATHS.summary} /> },
-      { href: `${base}/expenses`, label: "Expenses", active: expensesActive, icon: <I d={PATHS.expenses} /> },
-      { href: `${base}/members`, label: "On Trip", active: pathname === `${base}/members`, icon: <I d={PATHS.people} /> },
-      { href: "/", label: "Trips", active: false, icon: <I d={PATHS.trips} /> },
-    ];
-
-    return (
-      <nav className="fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 border-t border-hairline bg-[rgba(254,253,251,0.94)] backdrop-blur-xl">
-        <div className="flex items-stretch">
-          {tabs.map((t) => (
-            <Link key={t.href} href={t.href} className={tabClass(t.active)}>
-              <TabInner icon={t.icon} label={t.label} active={t.active} />
-            </Link>
-          ))}
-          <Link
-            href={`${base}/expenses/new`}
-            className="group flex flex-1 flex-col items-center gap-1.5 py-3"
-          >
-            <AddInner />
-          </Link>
-        </div>
-      </nav>
-    );
-  }
-
-  const homeTabs = [
-    { href: "/", label: "Trips", active: pathname === "/", icon: <I d={PATHS.trips} /> },
-    { href: "/people", label: "People", active: pathname.startsWith("/people"), icon: <I d={PATHS.people} /> },
-  ];
+  const tripsActive = pathname === "/" || pathname.startsWith("/trips");
+  const peopleActive = pathname.startsWith("/people");
+  // Add expense if we're inside a trip, otherwise go home to start one.
+  const addHref = tripId ? `/trips/${tripId}/expenses/new` : "/";
 
   return (
-    <nav className="fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 border-t border-hairline bg-[rgba(254,253,251,0.94)] backdrop-blur-xl">
-      <div className="flex items-stretch">
-        {homeTabs.map((t) => (
-          <Link key={t.href} href={t.href} className={tabClass(t.active)}>
-            <TabInner icon={t.icon} label={t.label} active={t.active} />
-          </Link>
-        ))}
+    <nav
+      className="fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 border-t border-hairline bg-[rgba(244,242,234,0.94)] backdrop-blur-xl"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <div className="flex items-center justify-around px-4 pb-4 pt-2.5">
+        <Link
+          href="/"
+          className="flex flex-1 flex-col items-center gap-1 py-1"
+          style={{ color: tripsActive ? "var(--rose)" : "var(--ink-3)" }}
+        >
+          <TabInner icon={<I d={PATHS.trips} />} label="Trips" active={tripsActive} />
+        </Link>
+
+        <Link
+          href={addHref}
+          className="-mt-6 flex flex-col items-center gap-1"
+        >
+          <AddInner />
+        </Link>
+
+        <Link
+          href="/people"
+          className="flex flex-1 flex-col items-center gap-1 py-1"
+          style={{ color: peopleActive ? "var(--rose)" : "var(--ink-3)" }}
+        >
+          <TabInner icon={<I d={PATHS.people} />} label="People" active={peopleActive} />
+        </Link>
       </div>
     </nav>
   );

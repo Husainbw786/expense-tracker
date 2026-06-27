@@ -5,12 +5,9 @@ import { addFamily, addMember, deleteFamily, deleteMember } from "@/app/actions"
 import { SubmitButton, SubmitLink } from "@/components/SubmitButton";
 
 function initials(name: string) {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  const parts = name.split(/\s+/).filter(Boolean);
+  const i = (parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "");
+  return i.toUpperCase() || "··";
 }
 
 type Family = { id: number; name: string };
@@ -26,33 +23,32 @@ function FamilyRow({ family, members }: { family: Family; members: Member[] }) {
   }
 
   return (
-    <div>
+    <div
+      className="rounded-[15px] border bg-surface-card transition-colors"
+      style={{ borderColor: open ? "var(--rose-border)" : "var(--hairline)" }}
+    >
       {/* Family row — tap to expand/collapse */}
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className={`ts-row w-full text-left ${open ? "border-b-transparent" : ""}`}
+        className="flex w-full items-center gap-3 p-3.5 text-left"
       >
-        <span
-          className={`avatar-circle h-10 w-10 ${
-            open ? "border-rose-border bg-surface-accent text-rose" : ""
-          }`}
-        >
+        <span className="avatar-circle h-[42px] w-[42px] text-[0.8rem]">
           {initials(family.name)}
         </span>
-        <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="text-[0.92rem] tracking-[0.03em] text-ink">{family.name}</span>
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="truncate text-[0.96rem] font-semibold text-ink">{family.name}</span>
           <span className="ts-meta">
-            {members.length} {members.length === 1 ? "MEMBER" : "MEMBERS"}
+            {members.length} {members.length === 1 ? "member" : "members"}
           </span>
         </span>
         <svg
-          className={`h-[15px] w-[15px] shrink-0 text-ink-3 transition-transform duration-200 ${
+          className={`h-[18px] w-[18px] shrink-0 text-ink-3 transition-transform duration-200 ${
             open ? "rotate-180" : ""
           }`}
           fill="none"
           stroke="currentColor"
-          strokeWidth={1.5}
+          strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
           viewBox="0 0 24 24"
@@ -62,7 +58,7 @@ function FamilyRow({ family, members }: { family: Family; members: Member[] }) {
       </button>
 
       {open && (
-        <div className="border-b border-hairline pb-4 pl-[54px]">
+        <div className="border-t border-hairline px-4 pb-4 pt-1">
           {/* Members */}
           {members.length === 0 ? (
             <p className="ts-micro py-3">No people yet — add someone below.</p>
@@ -70,11 +66,9 @@ function FamilyRow({ family, members }: { family: Family; members: Member[] }) {
             members.map((m) => (
               <div
                 key={m.id}
-                className="flex items-center justify-between gap-4 border-b border-hairline py-2"
+                className="flex items-center justify-between gap-4 border-b border-hairline py-2.5"
               >
-                <span className="text-[0.88rem] font-light tracking-[0.03em] text-ink">
-                  {m.name}
-                </span>
+                <span className="text-[0.9rem] font-medium text-ink">{m.name}</span>
                 <form action={deleteMember}>
                   <input type="hidden" name="id" value={m.id} />
                   <SubmitLink className="ts-textlink ts-textlink--danger">Remove</SubmitLink>
@@ -84,16 +78,16 @@ function FamilyRow({ family, members }: { family: Family; members: Member[] }) {
           )}
 
           {/* Add member */}
-          <form key={addKey} action={handleAddMember} className="flex items-end gap-3 pt-3">
+          <form key={addKey} action={handleAddMember} className="flex items-end gap-3 pt-3.5">
             <input type="hidden" name="familyId" value={family.id} />
             <input
               name="name"
               required
               autoComplete="off"
               placeholder="Add a member…"
-              className="flex-1 border-0 border-b border-border-strong bg-transparent px-0 py-1 text-[0.85rem] font-light text-ink outline-none placeholder:text-ink-3 focus:border-rose"
+              className="flex-1 border-0 border-b border-border-strong bg-transparent px-0 py-1.5 text-[0.9rem] font-medium text-ink outline-none placeholder:text-ink-3 focus:border-rose"
             />
-            <SubmitButton loadingText="…" className="ts-textlink ts-textlink--rose pb-1">
+            <SubmitButton loadingText="…" className="ts-textlink pb-1.5">
               Add
             </SubmitButton>
           </form>
@@ -128,29 +122,27 @@ export default function PeopleList({
   return (
     <div>
       {/* Add family */}
-      <form key={famKey} action={handleAddFamily} className="mb-7 flex items-stretch gap-2.5">
+      <form key={famKey} action={handleAddFamily} className="mb-6 flex items-stretch gap-2.5">
         <input
           name="name"
           required
           autoComplete="off"
-          placeholder="Family name (e.g. Barodwala Family)"
+          placeholder="Add a family — e.g. Barodwala Family"
           className="input flex-1"
         />
-        <SubmitButton loadingText="…" className="btn-ghost shrink-0">
+        <SubmitButton loadingText="…" className="btn-primary shrink-0 px-5">
           Add
         </SubmitButton>
       </form>
 
-      <div className="ts-ledgerhead">
-        <p className="ts-eyebrow ts-eyebrow--accent">Families</p>
-      </div>
+      <p className="mb-3 text-[0.94rem] font-semibold text-ink">Families</p>
 
       {families.length === 0 ? (
-        <p className="ts-micro border-b border-hairline py-5">
+        <p className="ts-micro rounded-[15px] border border-hairline bg-surface-card px-4 py-5">
           No families yet — add one above, then tap it to add people.
         </p>
       ) : (
-        <div>
+        <div className="flex flex-col gap-2.5">
           {families.map((f) => (
             <FamilyRow key={f.id} family={f} members={members.filter((m) => m.familyId === f.id)} />
           ))}

@@ -97,7 +97,7 @@ export default function ExpenseForm({
   }
 
   return (
-    <form action={action} className="flex flex-col gap-5 px-6 pt-4 pb-8">
+    <form action={action} className="flex flex-col gap-5 px-5 pt-4 pb-8">
       <input type="hidden" name="tripId" value={tripId} />
       {initial?.id ? <input type="hidden" name="id" value={initial.id} /> : null}
       <input type="hidden" name="category" value={category} />
@@ -142,19 +142,19 @@ export default function ExpenseForm({
         <input name="spentOn" type="date" defaultValue={initial?.spentOn ?? ""} className="input" />
       </label>
 
-      {/* Category — bordered segmented control */}
-      <div className="flex flex-col gap-1.5">
+      {/* Category — pills */}
+      <div className="flex flex-col gap-2">
         <span className="ts-eyebrow">Category</span>
-        <div className="flex flex-wrap border border-hairline">
+        <div className="flex flex-wrap gap-2">
           {CATEGORIES.map((c) => (
             <button
               key={c}
               type="button"
               onClick={() => setCategory(c)}
-              className={`border border-hairline px-3 py-2 text-[0.7rem] uppercase tracking-[0.12em] transition-colors duration-150 -m-px ${
+              className={`rounded-full px-3.5 py-2 text-[0.84rem] transition-colors duration-150 ${
                 category === c
-                  ? "relative z-10 border-rose bg-surface-accent text-rose-ink font-semibold"
-                  : "bg-transparent text-ink-2 hover:text-rose"
+                  ? "bg-rose font-semibold text-white"
+                  : "border border-hairline bg-background font-medium text-ink-2 hover:border-rose-light"
               }`}
             >
               {c}

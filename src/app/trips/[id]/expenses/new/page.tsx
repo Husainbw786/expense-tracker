@@ -23,20 +23,18 @@ export default async function NewExpensePage({
   ]);
 
   return (
-    <main className="pb-28">
-      <div className="px-6 pt-7">
+    <main className="pb-32">
+      <div className="px-5 pt-3">
         <Link
           href={`/trips/${tripId}/expenses`}
-          className="ts-textlink ts-textlink--rose inline-flex items-center gap-1.5"
+          className="ts-textlink inline-flex items-center gap-1.5"
         >
-          ← Expenses
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"></path>
+          </svg>
+          Expenses
         </Link>
-        <div className="ts-ledgerhead mt-5">
-          <p className="ts-eyebrow ts-eyebrow--accent">New entry</p>
-        </div>
-        <h1 className="ts-h2 mt-3.5">
-          Add to the <em>ledger</em>
-        </h1>
+        <h1 className="ts-display mt-2.5 text-[1.85rem]">Add expense</h1>
       </div>
 
       {members.length === 0 ? (

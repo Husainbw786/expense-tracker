@@ -1,24 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Libre_Baskerville, Josefin_Sans, Sacramento } from "next/font/google";
+import { Hanken_Grotesk, Spectral } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/BottomNav";
 import { getCurrentUser } from "@/lib/auth";
 import { logout } from "@/app/auth/actions";
 
-const libre = Libre_Baskerville({
-  weight: ["400", "700"],
+const hanken = Hanken_Grotesk({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-hanken",
+});
+const spectral = Spectral({
+  weight: ["500", "600", "700"],
   style: ["normal", "italic"],
   subsets: ["latin"],
-  variable: "--font-libre",
-});
-const josefin = Josefin_Sans({
-  subsets: ["latin"],
-  variable: "--font-josefin",
-});
-const sacramento = Sacramento({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-sacramento",
+  variable: "--font-spectral",
 });
 
 export const metadata: Metadata = {
@@ -30,7 +26,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#B85C72",
+  themeColor: "#C5663F",
 };
 
 export default async function RootLayout({
@@ -39,25 +35,44 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getCurrentUser();
+  const initial = user?.name?.trim()?.[0]?.toUpperCase() ?? "·";
   return (
     <html
       lang="en"
-      className={`${libre.variable} ${josefin.variable} ${sacramento.variable} h-full antialiased`}
+      className={`${hanken.variable} ${spectral.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         <div className="mx-auto w-full max-w-md ts-app-col">
-          {/* top bar — script wordmark, quiet logout */}
-          <header className="sticky top-0 z-30 flex h-[58px] items-center justify-between gap-4 border-b border-hairline bg-[rgba(254,253,251,0.94)] px-4 backdrop-blur-xl">
-            <span className="w-16 shrink-0"></span>
-            <span className="ts-wordmark -translate-y-0.5">Trip Splitter</span>
+          {/* top bar — logo tile + avatar */}
+          <header className="sticky top-0 z-30 flex h-[60px] items-center justify-between gap-4 bg-[rgba(244,242,234,0.94)] px-5 backdrop-blur-xl">
+            <span className="flex items-center gap-2.5">
+              <span className="grid h-8 w-8 place-items-center rounded-[9px] bg-rose">
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#fff"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 7h18M6 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2M5 7l1 13a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1l1-13"></path>
+                </svg>
+              </span>
+              <span className="ts-wordmark">Trip Splitter</span>
+            </span>
             {user ? (
-              <form action={logout} className="w-16 shrink-0 text-right">
-                <button className="ts-textlink" title={`Logged in as ${user.email}`}>
-                  Log out
+              <form action={logout} className="shrink-0">
+                <button
+                  className="grid h-[33px] w-[33px] place-items-center rounded-full bg-surface-accent text-[0.82rem] font-bold text-rose"
+                  title={`Logged in as ${user.email} — tap to log out`}
+                >
+                  {initial}
                 </button>
               </form>
             ) : (
-              <span className="w-16 shrink-0"></span>
+              <span className="h-[33px] w-[33px] shrink-0"></span>
             )}
           </header>
           {children}
